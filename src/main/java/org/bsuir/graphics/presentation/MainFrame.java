@@ -1,9 +1,9 @@
 package org.bsuir.graphics.presentation;
 
 import org.bsuir.graphics.mapper.CoordsMapper;
+import org.bsuir.graphics.model.DataReference;
 import org.bsuir.graphics.model.Face;
 import org.bsuir.graphics.model.Model;
-import org.bsuir.graphics.model.ModelObject;
 import org.bsuir.graphics.model.Vertex;
 import org.bsuir.graphics.scaner.ObjScanner;
 
@@ -21,11 +21,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class MainFrame implements Runnable {
 
@@ -192,8 +188,18 @@ public class MainFrame implements Runnable {
                             (int) vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).y);
                     }
                 }
+                face_rasterization(graphics, face);
             }
         });
+    }
+
+    private void face_rasterization(Graphics graphics, Face face) {
+        List<Vertex> list = face.getReferences()
+                .stream()
+                .map(dataReference -> vertices.get(dataReference.vertexIndex - 1))
+                .collect(Collectors.toList());
+        drawer.face_rasterization(graphics, list);
+
     }
 
     private void updateFrame() {
