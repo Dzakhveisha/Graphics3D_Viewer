@@ -45,7 +45,7 @@ public class MainFrame implements Runnable {
     public MainFrame() {
 
         ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream("QuesilloSKF.obj"); //Ford_Mustang_Shelby_GT500KR.obj
+        InputStream inputStream = classLoader.getResourceAsStream("Cube.obj"); //Ford_Mustang_Shelby_GT500KR.obj
 
         final Reader reader = new InputStreamReader(inputStream);
 
