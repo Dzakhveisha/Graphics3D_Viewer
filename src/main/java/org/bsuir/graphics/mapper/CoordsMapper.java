@@ -12,8 +12,8 @@ public class CoordsMapper {
     private final Vertex target = new Vertex(0f, 0f, 0f, 1f);
     private final Vertex up = new Vertex(0f, 1f, 0f, 0f);
 
-    private float initRotationX = 0f;
-    private float initRotationY = 0f;
+    private float initRotationX = 2f;
+    private float initRotationY = 3f;
     private float initScale = 1;
     private float initPlacementX = 0;
     private float initPlacementY = 0;
