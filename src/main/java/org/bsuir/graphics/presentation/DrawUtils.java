@@ -20,19 +20,19 @@ public class DrawUtils {
     public void initBuffer() {
         for (
                 float[] floats : zBuffer) {
-            Arrays.fill(floats, -1000000000);
+            Arrays.fill(floats, 1000000000);
         }
 
     }
 
 
-    public void drawLine(Graphics g, int xStart, int yStart, float zStart, int xEnd, int yEnd, float zEnd) {
+    public void drawLine(Graphics g, Color color, int xStart, int yStart, float zStart, int xEnd, int yEnd, float zEnd) {
         float zIncrement = (zEnd - zStart) / (xEnd - xStart);
         float zDepth = zStart;
-
+        g.setColor(color);
         if (xStart < xEnd) {
             for (int x = xStart; x < xEnd; x++) {
-                if (zBuffer[x][yStart] < zDepth) {
+                if (zBuffer[x][yStart] > zDepth && x < SCREEN_WIDTH && x > 0 && yStart < SCREEN_WIDTH && yStart > 0) {
                     zBuffer[x][yStart] = zDepth;
                     g.drawLine(x, yStart, x, yStart);
                 }
@@ -40,7 +40,7 @@ public class DrawUtils {
             }
         } else {
             for (int x = xStart; x > xEnd; x--) {
-                if (zBuffer[x][yStart] < zDepth) {
+                if (zBuffer[x][yStart] > zDepth && x < SCREEN_WIDTH && x > 0 && yStart < SCREEN_WIDTH && yStart > 0) {
                     zBuffer[x][yStart] = zDepth;
                     g.drawLine(x, yStart, x, yStart);
                 }
@@ -50,7 +50,7 @@ public class DrawUtils {
         }
     }
 
-    public void drawLine(Graphics g, int xStart, int yStart, int xEnd, int yEnd) {
+    public void drawLine(Graphics g, Color color, int xStart, int yStart, int xEnd, int yEnd) {
         int x;
         int y;
         int dx;
@@ -103,11 +103,12 @@ public class DrawUtils {
                 x += pdx;
                 y += pdy;
             }
+            g.setColor(color);
             g.drawLine(x, y, x, y);
         }
     }
 
-    public void face_rasterization(Graphics g, List<Vertex> vertexList) {
+    public void face_rasterization(Graphics g, Color faceColor, List<Vertex> vertexList) {
         int highestPixel = (int) findHigestVertexY(vertexList);
         int shortestPixel = (int) findShortestVertexY(vertexList);
         int deltaY = highestPixel - shortestPixel;
@@ -129,7 +130,7 @@ public class DrawUtils {
                 }
             }
             if (points.size() == 2) {
-                drawLine(g, (int) points.get(0).x, (int) points.get(0).y, (int) points.get(0).z, (int) points.get(1).x, (int) points.get(1).y, (int) points.get(1).z);
+                drawLine(g, faceColor, (int) points.get(0).x, (int) points.get(0).y, (int) points.get(0).z, (int) points.get(1).x, (int) points.get(1).y, (int) points.get(1).z);
             }
         }
     }

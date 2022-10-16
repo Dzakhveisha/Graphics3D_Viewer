@@ -1,5 +1,6 @@
 package org.bsuir.graphics.presentation;
 
+import org.bsuir.graphics.light.LambLight;
 import org.bsuir.graphics.mapper.CoordsMapper;
 import org.bsuir.graphics.model.DataReference;
 import org.bsuir.graphics.model.Face;
@@ -36,6 +37,8 @@ public class MainFrame implements Runnable {
 
     private final CoordsMapper mapper = new CoordsMapper();
     private static final DrawUtils drawer = new DrawUtils();
+
+    private final LambLight lightness;
     private final JFrame frame;
 
     public MainFrame() {
@@ -53,6 +56,9 @@ public class MainFrame implements Runnable {
         }
 
         model = scanRunner.getParser().getModel();
+
+        lightness = new LambLight(model.getNormals());
+
         vertices = new ArrayList<>();
         for (Vertex v : model.getVertices()) {
             v = mapper.fromModelSpaceToViewPort(v);
@@ -170,34 +176,25 @@ public class MainFrame implements Runnable {
 
     private void draw3D(Graphics graphics) {
         drawer.initBuffer();
-        model.getObjects().parallelStream().forEach(object -> {
-            for (Face face : object.getFaces()) {
-                for (int i = 0; i < face.getReferences().size(); i++) {
-                    if (i + 1 == face.getReferences().size()) {
-                        drawer.drawLine(graphics,
-                            (int) vertices.get(face.getReferences().get(i).vertexIndex - 1).x,
-                            (int) vertices.get(face.getReferences().get(i).vertexIndex - 1).y,
-                            (int) vertices.get(face.getReferences().get(0).vertexIndex - 1).x,
-                            (int) vertices.get(face.getReferences().get(0).vertexIndex - 1).y);
-                    } else {
-                        drawer.drawLine(graphics,
-                            (int) vertices.get(face.getReferences().get(i).vertexIndex - 1).x,
-                            (int) vertices.get(face.getReferences().get(i).vertexIndex - 1).y,
-                            (int) vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).x,
-                            (int) vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).y);
-                    }
-                }
-                face_rasterization(graphics, face);
-            }
-        });
+//        model.getObjects().parallelStream().forEach(object -> {
+//            for (Face face : object.getFaces()) {
+//                Color faceColor = lightness.calcLightness(face.getReferences());
+//                face_rasterization(graphics, faceColor, face);
+//            }
+//        });
+
+        for (Face face : model.getObjects().get(0).getFaces()) {
+            Color faceColor = lightness.calcLightness(face.getReferences());
+            face_rasterization(graphics, faceColor, face);
+        }
     }
 
-    private void face_rasterization(Graphics graphics, Face face) {
+    private void face_rasterization(Graphics graphics, Color faceColor, Face face) {
         List<Vertex> list = face.getReferences()
                 .stream()
                 .map(dataReference -> vertices.get(dataReference.vertexIndex - 1))
                 .collect(Collectors.toList());
-        drawer.face_rasterization(graphics, list);
+        drawer.face_rasterization(graphics, faceColor, list);
 
     }
 
