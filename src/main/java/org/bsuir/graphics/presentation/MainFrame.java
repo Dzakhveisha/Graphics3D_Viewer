@@ -169,9 +169,8 @@ public class MainFrame implements Runnable {
     }
 
     private void draw3D(Graphics graphics) {
-
+        drawer.initBuffer();
         model.getObjects().parallelStream().forEach(object -> {
-
             for (Face face : object.getFaces()) {
                 for (int i = 0; i < face.getReferences().size(); i++) {
                     if (i + 1 == face.getReferences().size()) {

@@ -4,14 +4,53 @@ import org.bsuir.graphics.model.Vertex;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
 
 public class DrawUtils {
 
-    public void drawLine(Graphics g, int xStart, int yStart, int xEnd, int yEnd) {
+    private static final int SCREEN_WIDTH = 1280;
+    private static final int SCREEN_HEIGHT = 720;
 
+    private float[][] zBuffer = new float[SCREEN_WIDTH][SCREEN_HEIGHT];
+
+
+    public void initBuffer() {
+        for (
+                float[] floats : zBuffer) {
+            Arrays.fill(floats, -1000000000);
+        }
+
+    }
+
+
+    public void drawLine(Graphics g, int xStart, int yStart, float zStart, int xEnd, int yEnd, float zEnd) {
+        float zIncrement = (zEnd - zStart) / (xEnd - xStart);
+        float zDepth = zStart;
+
+        if (xStart < xEnd) {
+            for (int x = xStart; x < xEnd; x++) {
+                if (zBuffer[x][yStart] < zDepth) {
+                    zBuffer[x][yStart] = zDepth;
+                    g.drawLine(x, yStart, x, yStart);
+                }
+                zDepth += zIncrement;
+            }
+        } else {
+            for (int x = xStart; x > xEnd; x--) {
+                if (zBuffer[x][yStart] < zDepth) {
+                    zBuffer[x][yStart] = zDepth;
+                    g.drawLine(x, yStart, x, yStart);
+                }
+                zDepth += zIncrement;
+
+            }
+        }
+    }
+
+    public void drawLine(Graphics g, int xStart, int yStart, int xEnd, int yEnd) {
         int x;
         int y;
         int dx;
@@ -71,40 +110,55 @@ public class DrawUtils {
     public void face_rasterization(Graphics g, List<Vertex> vertexList) {
         int highestPixel = (int) findHigestVertexY(vertexList);
         int shortestPixel = (int) findShortestVertexY(vertexList);
+        int deltaY = highestPixel - shortestPixel;
 
-        List<Point> points = new ArrayList<>();
+        List<Vertex> points = new ArrayList<>();
         for (int i = highestPixel; i > shortestPixel; i--) {
             points.clear();
             for (int j = 0; j < vertexList.size(); j++) {
                 if (j + 1 == vertexList.size()) {
-                    Point interseption = interseption(vertexList.get(0), vertexList.get(j), i);
+                    Vertex interseption = interseption(vertexList.get(0), vertexList.get(j), i, deltaY, highestPixel);
                     if (interseption != null) {
                         points.add(interseption);
                     }
                 } else {
-                    Point interseption = interseption(vertexList.get(j), vertexList.get(j + 1), i);
+                    Vertex interseption = interseption(vertexList.get(j), vertexList.get(j + 1), i, deltaY, highestPixel);
                     if (interseption != null) {
                         points.add(interseption);
                     }
                 }
             }
             if (points.size() == 2) {
-                drawLine(g, points.get(0).x, points.get(0).y, points.get(1).x, points.get(1).y);
+                drawLine(g, (int) points.get(0).x, (int) points.get(0).y, (int) points.get(0).z, (int) points.get(1).x, (int) points.get(1).y, (int) points.get(1).z);
             }
         }
     }
 
-    private Point interseption(Vertex vertex1, Vertex vertex2, int i) {
-        if (i < vertex1.y && i < vertex2.y || i > vertex1.y && i > vertex2.y || vertex1.y == vertex2.y ) {
+    private Vertex interseption(Vertex vertex1, Vertex vertex2, int curY, int deltaY, int highestPixel) {
+        if (curY < vertex1.y && curY < vertex2.y || curY > vertex1.y && curY > vertex2.y || vertex1.y == vertex2.y) {
             return null;
         }
-        if( vertex1.x == vertex2.x){
-            return  new Point((int)vertex1.x, i);
+        if (vertex1.x == vertex2.x) {
+            if (vertex1.y < vertex2.y) {
+                return new Vertex(vertex1.x, curY, findDepth(vertex1.z, curY, highestPixel, deltaY, Math.abs(vertex1.z - vertex2.z)));
+            } else {
+                return new Vertex(vertex1.x, curY, findDepth(vertex2.z, curY, highestPixel, deltaY, Math.abs(vertex1.z - vertex2.z)));
+            }
         }
         float k = (vertex1.y - vertex2.y) / (vertex1.x - vertex2.x);
         float b = vertex1.y - k * vertex1.x;
-        float x = (i - b) / k;
-        return new Point((int) x, i);
+        float x = (curY - b) / k;
+        if (vertex1.y < vertex2.y) {
+            return new Vertex(x, curY, findDepth(vertex1.z, curY, highestPixel, deltaY, Math.abs(vertex1.z - vertex2.z)));
+        } else {
+            return new Vertex(x, curY, findDepth(vertex2.z, curY, highestPixel, deltaY, Math.abs(vertex1.z - vertex2.z)));
+        }
+    }
+
+    private float findDepth(float startZ, int y, int highestPixel, float deltaY, float deltaZ) {
+        float zIncrement = deltaZ / deltaY;
+        float z = startZ + (highestPixel - y) * zIncrement;
+        return z;
     }
 
     private float findShortestVertexY(List<Vertex> vertexList) {
