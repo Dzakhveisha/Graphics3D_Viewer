@@ -44,7 +44,7 @@ public class MainFrame implements Runnable {
     public MainFrame() {
 
         ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream("Ford_Mustang_Shelby_GT500KR.obj"); //Ford_Mustang_Shelby_GT500KR.obj
+        InputStream inputStream = classLoader.getResourceAsStream("Cube.obj"); //Ford_Mustang_Shelby_GT500KR.obj
 
         final Reader reader = new InputStreamReader(inputStream);
 
@@ -176,27 +176,17 @@ public class MainFrame implements Runnable {
 
     private void draw3D(Graphics graphics) {
         drawer.initBuffer();
-        model.getObjects().parallelStream().forEach(object -> {
-            for (Face face : object.getFaces()) {
-                Color faceColor = lightness.calcLightness(face.getReferences());
-                for (int i = 0; i < face.getReferences().size(); i++) {
-                    if (i + 1 == face.getReferences().size()) {
-                        drawer.drawLine(graphics, faceColor,
-                            (int) vertices.get(face.getReferences().get(i).vertexIndex - 1).x,
-                            (int) vertices.get(face.getReferences().get(i).vertexIndex - 1).y,
-                            (int) vertices.get(face.getReferences().get(0).vertexIndex - 1).x,
-                            (int) vertices.get(face.getReferences().get(0).vertexIndex - 1).y);
-                    } else {
-                        drawer.drawLine(graphics, faceColor,
-                            (int) vertices.get(face.getReferences().get(i).vertexIndex - 1).x,
-                            (int) vertices.get(face.getReferences().get(i).vertexIndex - 1).y,
-                            (int) vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).x,
-                            (int) vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).y);
-                    }
-                }
-                face_rasterization(graphics, faceColor, face);
-            }
-        });
+//        model.getObjects().parallelStream().forEach(object -> {
+//            for (Face face : object.getFaces()) {
+//                Color faceColor = lightness.calcLightness(face.getReferences());
+//                face_rasterization(graphics, faceColor, face);
+//            }
+//        });
+
+        for (Face face : model.getObjects().get(0).getFaces()) {
+            Color faceColor = lightness.calcLightness(face.getReferences());
+            face_rasterization(graphics, faceColor, face);
+        }
     }
 
     private void face_rasterization(Graphics graphics, Color faceColor, Face face) {

@@ -42,10 +42,10 @@ public class ObjScanner {
 
     private void processVertex(LineScanner command) {
 
-        final float x = command.getParam(0) / 100;
-        final float y = command.getParam(1) / 100;
-        final float z = command.getParam(2) / 100;
-        final float w = command.getParam(3) / 100;
+        final float x = command.getParam(0);
+        final float y = command.getParam(1);
+        final float z = command.getParam(2);
+        final float w = command.getParam(3);
         handler.onVertex(x, y, z, w);
     }
 
