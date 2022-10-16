@@ -32,17 +32,21 @@ public class DrawUtils {
         g.setColor(color);
         if (xStart < xEnd) {
             for (int x = xStart; x < xEnd; x++) {
-                if (zBuffer[x][yStart] > zDepth && x < SCREEN_WIDTH && x > 0 && yStart < SCREEN_WIDTH && yStart > 0) {
-                    zBuffer[x][yStart] = zDepth;
-                    g.drawLine(x, yStart, x, yStart);
+                if (x < SCREEN_WIDTH && x > 0 && yStart < SCREEN_HEIGHT && yStart > 0) {
+                    if (zBuffer[x][yStart] > zDepth) {
+                        zBuffer[x][yStart] = zDepth;
+                        g.drawLine(x, yStart, x, yStart);
+                    }
                 }
                 zDepth += zIncrement;
             }
         } else {
             for (int x = xStart; x > xEnd; x--) {
-                if (zBuffer[x][yStart] > zDepth && x < SCREEN_WIDTH && x > 0 && yStart < SCREEN_WIDTH && yStart > 0) {
-                    zBuffer[x][yStart] = zDepth;
-                    g.drawLine(x, yStart, x, yStart);
+                if (x < SCREEN_WIDTH && x > 0 && yStart < SCREEN_HEIGHT && yStart > 0) {
+                    if(zBuffer[x][yStart] > zDepth) {
+                        zBuffer[x][yStart] = zDepth;
+                        g.drawLine(x, yStart, x, yStart);
+                    }
                 }
                 zDepth += zIncrement;
 

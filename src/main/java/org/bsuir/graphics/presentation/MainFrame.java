@@ -176,17 +176,12 @@ public class MainFrame implements Runnable {
 
     private void draw3D(Graphics graphics) {
         drawer.initBuffer();
-//        model.getObjects().parallelStream().forEach(object -> {
-//            for (Face face : object.getFaces()) {
-//                Color faceColor = lightness.calcLightness(face.getReferences());
-//                face_rasterization(graphics, faceColor, face);
-//            }
-//        });
-
-        for (Face face : model.getObjects().get(0).getFaces()) {
-            Color faceColor = lightness.calcLightness(face.getReferences());
-            face_rasterization(graphics, faceColor, face);
-        }
+        model.getObjects().parallelStream().forEach(object -> {
+            for (Face face : object.getFaces()) {
+                Color faceColor = lightness.calcLightness(face.getReferences());
+                face_rasterization(graphics, faceColor, face);
+            }
+        });
     }
 
     private void face_rasterization(Graphics graphics, Color faceColor, Face face) {
