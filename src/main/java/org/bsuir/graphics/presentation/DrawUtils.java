@@ -19,7 +19,7 @@ public class DrawUtils {
 
     public void initBuffer() {
         for (
-                float[] floats : zBuffer) {
+            float[] floats : zBuffer) {
             Arrays.fill(floats, 1000000000);
         }
 
@@ -27,7 +27,7 @@ public class DrawUtils {
 
 
     public void drawLine(Graphics g, Color color, int xStart, int yStart, float zStart, int xEnd, int yEnd, float zEnd) {
-        float zIncrement = (zEnd - zStart) / (xEnd - xStart);
+        float zIncrement = (zEnd - zStart) / Math.abs(xEnd - xStart);
         float zDepth = zStart;
         g.setColor(color);
         if (xStart < xEnd) {
@@ -113,8 +113,8 @@ public class DrawUtils {
     }
 
     public void face_rasterization(Graphics g, Color faceColor, List<Vertex> vertexList) {
-        int highestPixel = (int) findHigestVertexY(vertexList);
-        int shortestPixel = (int) findShortestVertexY(vertexList);
+        int highestPixel = Math.round(findHigestVertexY(vertexList));
+        int shortestPixel = Math.round(findShortestVertexY(vertexList));
         int deltaY = highestPixel - shortestPixel;
 
         List<Vertex> points = new ArrayList<>();
@@ -134,7 +134,7 @@ public class DrawUtils {
                 }
             }
             if (points.size() == 2) {
-                drawLine(g, faceColor, (int) points.get(0).x, (int) points.get(0).y, (int) points.get(0).z, (int) points.get(1).x, (int) points.get(1).y, (int) points.get(1).z);
+                drawLine(g, faceColor, Math.round( points.get(0).x), Math.round(points.get(0).y), Math.round(points.get(0).z), Math.round(points.get(1).x), Math.round(points.get(1).y), Math.round(points.get(1).z));
             }
         }
     }
