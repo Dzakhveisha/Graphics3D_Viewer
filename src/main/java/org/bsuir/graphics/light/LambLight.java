@@ -8,8 +8,10 @@ import java.awt.*;
 import java.util.List;
 
 public class LambLight {
+    
+    private final double radians = 3.14159; 
 
-    private final Vertex theSun = new Vertex(3, 5, 3);
+    private final Vertex theSun = new Vertex(2.5f, 0, -5);
 
     private final List<Normal> normalList;
 
@@ -41,11 +43,9 @@ public class LambLight {
             avgColor += Math.acos(cos);
         }
         avgColor = avgColor / dataReferenceList.size();
-        if (avgColor > 1.5708) {
-            avgColor -= 1.5708;
-        }
+
       //  System.out.println(avgColor);
-        avgColor = (avgColor * 255) / 1.5708;
+        avgColor = (avgColor * 255) / radians;
         Color returnColor;
 
         returnColor = new Color((int) avgColor, (int) avgColor, (int) avgColor);

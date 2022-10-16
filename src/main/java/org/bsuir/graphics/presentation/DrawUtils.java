@@ -140,7 +140,7 @@ public class DrawUtils {
     }
 
     private Vertex interseption(Vertex vertex1, Vertex vertex2, int curY, int deltaY, int highestPixel) {
-        if (curY < vertex1.y && curY < vertex2.y || curY > vertex1.y && curY > vertex2.y || vertex1.y == vertex2.y) {
+        if (curY < vertex1.y && curY < vertex2.y || curY > vertex1.y && curY > vertex2.y) {
             return null;
         }
         if (vertex1.x == vertex2.x) {
