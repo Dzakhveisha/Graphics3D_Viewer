@@ -113,8 +113,8 @@ public class DrawUtils {
     }
 
     public void face_rasterization(Graphics g, Color faceColor, List<Vertex> vertexList) {
-        int highestPixel = Math.round(findHigestVertexY(vertexList));
-        int shortestPixel = Math.round(findShortestVertexY(vertexList));
+        int highestPixel = Math.round(findHigestVertex(vertexList).y);
+        int shortestPixel = Math.round(findShortestVertex(vertexList).y);
         int deltaY = highestPixel - shortestPixel;
 
         List<Vertex> points = new ArrayList<>();
@@ -145,28 +145,28 @@ public class DrawUtils {
         }
         if (vertex1.x == vertex2.x) {
             if (vertex1.y < vertex2.y) {
-                return new Vertex(vertex1.x, curY, findDepth(vertex1.z, curY, highestPixel, deltaY, Math.abs(vertex1.z - vertex2.z)));
+                return new Vertex(vertex1.x, curY, findDepth(vertex2.z, curY, highestPixel, Math.abs(vertex1.y - vertex2.y), Math.abs(vertex1.z - vertex2.z), vertex2.y));
             } else {
-                return new Vertex(vertex1.x, curY, findDepth(vertex2.z, curY, highestPixel, deltaY, Math.abs(vertex1.z - vertex2.z)));
+                return new Vertex(vertex1.x, curY, findDepth(vertex1.z, curY, highestPixel, Math.abs(vertex1.y - vertex2.y), Math.abs(vertex1.z - vertex2.z), vertex1.y));
             }
         }
         float k = (vertex1.y - vertex2.y) / (vertex1.x - vertex2.x);
         float b = vertex1.y - k * vertex1.x;
         float x = (curY - b) / k;
         if (vertex1.y < vertex2.y) {
-            return new Vertex(x, curY, findDepth(vertex1.z, curY, highestPixel, deltaY, Math.abs(vertex1.z - vertex2.z)));
+            return new Vertex(x, curY, findDepth(vertex2.z, curY, highestPixel, Math.abs(vertex1.y - vertex2.y), vertex1.z - vertex2.z, vertex2.y));
         } else {
-            return new Vertex(x, curY, findDepth(vertex2.z, curY, highestPixel, deltaY, Math.abs(vertex1.z - vertex2.z)));
+            return new Vertex(x, curY, findDepth(vertex1.z, curY, highestPixel, Math.abs(vertex1.y - vertex2.y), vertex2.z - vertex1.z, vertex1.y));
         }
     }
 
-    private float findDepth(float startZ, int y, int highestPixel, float deltaY, float deltaZ) {
+    private float findDepth(float startZ, int y, int highestPixel, float deltaY, float deltaZ, float maxY) {
         float zIncrement = deltaZ / deltaY;
-        float z = startZ + (highestPixel - y) * zIncrement;
+        float z = startZ + (maxY - y) * zIncrement;
         return z;
     }
 
-    private float findShortestVertexY(List<Vertex> vertexList) {
+    private Vertex findShortestVertex(List<Vertex> vertexList) {
         return vertexList.stream()
                 .min(new Comparator<Vertex>() {
                     @Override
@@ -174,11 +174,10 @@ public class DrawUtils {
                         return Float.compare(o1.y, o2.y);
                     }
                 })
-                .get()
-                .y;
+                .get();
     }
 
-    private float findHigestVertexY(List<Vertex> vertexList) {
+    private Vertex findHigestVertex(List<Vertex> vertexList) {
         return vertexList.stream()
                 .max(new Comparator<Vertex>() {
                     @Override
@@ -186,8 +185,7 @@ public class DrawUtils {
                         return Float.compare(o1.y, o2.y);
                     }
                 })
-                .get()
-                .y;
+                .get();
     }
 
     private static int sign(int x) {
