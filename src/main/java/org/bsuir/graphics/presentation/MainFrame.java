@@ -2,7 +2,6 @@ package org.bsuir.graphics.presentation;
 
 import org.bsuir.graphics.light.LambLight;
 import org.bsuir.graphics.mapper.CoordsMapper;
-import org.bsuir.graphics.model.DataReference;
 import org.bsuir.graphics.model.Face;
 import org.bsuir.graphics.model.Model;
 import org.bsuir.graphics.model.Vertex;
@@ -15,11 +14,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,7 +39,7 @@ public class MainFrame implements Runnable {
     public MainFrame() {
 
         ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream("Cake.obj"); //Ford_Mustang_Shelby_GT500KR.obj
+        InputStream inputStream = classLoader.getResourceAsStream("cat.obj"); //Ford_Mustang_Shelby_GT500KR.obj
 
         final Reader reader = new InputStreamReader(inputStream);
 
@@ -179,12 +174,33 @@ public class MainFrame implements Runnable {
         model.getObjects().parallelStream().forEach(object -> {
             for (Face face : object.getFaces()) {
                 Color faceColor = lightness.calcLightness(face.getReferences());
-                face_rasterization(graphics, faceColor, face);
+
+                for (int i = 0; i < face.getReferences().size(); i++) {
+                    if (i + 1 == face.getReferences().size()) {
+                        drawer.drawLine(graphics, faceColor,
+                                Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).x),
+                                Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).y),
+                                Math.round(vertices.get(face.getReferences().get(0).vertexIndex - 1).x),
+                                Math.round(vertices.get(face.getReferences().get(0).vertexIndex - 1).y),
+                                Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).z),
+                                Math.round(vertices.get(face.getReferences().get(0).vertexIndex - 1).z));
+                    } else {
+                        drawer.drawLine(graphics, faceColor,
+                                Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).x),
+                                Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).y),
+                                Math.round(vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).x),
+                                Math.round(vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).y),
+                                Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).z),
+                                Math.round(vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).z));
+                    }
+                }
+
+                faceRasterization(graphics, faceColor, face);
             }
         });
     }
 
-    private void face_rasterization(Graphics graphics, Color faceColor, Face face) {
+    private void faceRasterization(Graphics graphics, Color faceColor, Face face) {
         List<Vertex> list = face.getReferences()
                 .stream()
                 .map(dataReference -> vertices.get(dataReference.vertexIndex - 1))
