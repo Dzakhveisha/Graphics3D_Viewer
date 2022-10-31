@@ -2,147 +2,74 @@ package org.bsuir.graphics.presentation;
 
 import org.bsuir.graphics.light.LambLight;
 import org.bsuir.graphics.mapper.CoordsMapper;
+import org.bsuir.graphics.model.DataReference;
 import org.bsuir.graphics.model.Face;
 import org.bsuir.graphics.model.Model;
 import org.bsuir.graphics.model.Vertex;
+import org.bsuir.graphics.motion.DefaultModelMotion;
 import org.bsuir.graphics.scaner.ObjScanner;
+import org.bsuir.graphics.service.VectorService;
+import org.bsuir.graphics.utils.ProjectConstants;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import java.util.stream.Collectors;
 
 public class MainFrame implements Runnable {
 
-    private static final int SCREEN_WIDTH = 1280;
-    private static final int SCREEN_HEIGHT = 720;
-    double lastX = SCREEN_WIDTH / 2;
-    double lastY = SCREEN_HEIGHT / 2;
+    private static final int SCREEN_WIDTH = ProjectConstants.SCREEN_WIDTH;
+    private static final int SCREEN_HEIGHT = ProjectConstants.SCREEN_HEIGHT;
+    private final Model model;
 
-    private Model model;
-
+    private LambLight lambLight;
     private final List<Vertex> vertices;
-
+    private final List<Vertex> normals;
     private final CoordsMapper mapper = new CoordsMapper();
     private static final DrawUtils drawer = new DrawUtils();
 
-    private final LambLight lightness;
+    private static final Drawer optDrawer = new Drawer();
+    private VectorService vectorService = new VectorService();
+
+    private final Vertex eye = vectorService.normalize(ProjectConstants.EYE);
     private final JFrame frame;
 
     public MainFrame() {
 
-        ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream("cat.obj"); //Ford_Mustang_Shelby_GT500KR.obj
-
-        final Reader reader = new InputStreamReader(inputStream);
-
-        ObjScanner scanRunner = new ObjScanner();
-        try {
-            scanRunner.run(new BufferedReader(reader));
-        } catch (IOException ex) {
-
-        }
-
-        model = scanRunner.getParser().getModel();
-
-        lightness = new LambLight(model.getNormals());
+        model = readFile().getParser().getModel();
 
         vertices = new ArrayList<>();
-        for (Vertex v : model.getVertices()) {
-            v = mapper.fromModelSpaceToViewPort(v);
-            vertices.add(v);
-        }
+        model.getVertices().forEach(vertex -> {
+            vertices.add(mapper.fromModelSpaceToViewPort(vertex));
+        });
+
+        normals = new ArrayList<>();
+        normals.addAll(model.getNormals());
+
+        lambLight = new LambLight(normals);
 
         frame = new JFrame() {
 
             @Override
             public void paint(Graphics g) {
+
                 Image img = createBufferedImage();
                 g.drawImage(img, 0, 0, this);
             }
         };
 
-        frame.addKeyListener(new KeyListener() {
-
-            @Override
-            public void keyTyped(KeyEvent e) {
-
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-
-                if (e.getKeyCode() == KeyEvent.VK_UP) {
-                    mapper.move(vertices, 0, -10);
-                } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                    mapper.move(vertices, 0, 10);
-                } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                    mapper.move(vertices, -10, 0);
-                } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                    mapper.move(vertices, 10, 0);
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
-            }
-        });
-
-        frame.addMouseWheelListener(e -> {
-
-            mapper.scale(e.getPreciseWheelRotation());
-            int i = 0;
-
-            for (Vertex vertex : model.getVertices()) {
-                vertex = mapper.fromModelSpaceToViewPort(vertex);
-                vertices.set(i, vertex);
-                i++;
-            }
-        });
-
-        frame.addMouseMotionListener(new MouseMotionListener() {
-
-            @Override
-            public void mouseDragged(MouseEvent e) {
-
-                double xpos = e.getX();
-                double ypos = e.getY();
-
-                double xoffset = xpos - lastX;
-                double yoffset = lastY - ypos;
-                lastX = xpos;
-                lastY = ypos;
-
-                double sensitivity = 0.01;
-                xoffset *= sensitivity;
-                yoffset *= sensitivity;
-
-                mapper.rotate(yoffset, xoffset);
-
-                int i = 0;
-
-                for (Vertex vertex : model.getVertices()) {
-                    vertex = mapper.fromModelSpaceToViewPort(vertex);
-                    vertices.set(i, vertex);
-                    i++;
-                }
-            }
-
-            @Override
-            public void mouseMoved(MouseEvent e) {
-
-                lastX = e.getX();
-                lastY = e.getY();
-            }
-        });
+        DefaultModelMotion motion = new DefaultModelMotion(frame);
+        motion.addMouseMotionToFrame(mapper, model, vertices, normals);
+        motion.addMouseWheelMotionToFrame(mapper, model, vertices);
+        motion.addKeyMotionToFrame(mapper, model, vertices, normals);
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -151,12 +78,25 @@ public class MainFrame implements Runnable {
         frame.setVisible(true);
     }
 
-    @Override
-    public void run() {
+    private ObjScanner readFile() {
 
-        while (running) {
-            updateFrame();
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream("Cube.obj");
+        //Ford_Mustang_Shelby_GT500KR.obj
+
+        if (inputStream == null) {
+            throw new RuntimeException("Could not find file in the resources");
         }
+        final Reader reader = new InputStreamReader(inputStream);
+
+        ObjScanner scanRunner = new ObjScanner();
+        try {
+            scanRunner.run(new BufferedReader(reader));
+        } catch (IOException ex) {
+            System.out.println("Scanner exception. Exception:" + ex.getMessage() + " " + ex.getCause());
+        }
+
+        return scanRunner;
     }
 
     private BufferedImage createBufferedImage() {
@@ -170,57 +110,91 @@ public class MainFrame implements Runnable {
     }
 
     private void draw3D(Graphics graphics) {
-        drawer.initBuffer();
-        model.getObjects().parallelStream().forEach(object -> {
-            for (Face face : object.getFaces()) {
-                Color faceColor = lightness.calcLightness(face.getReferences());
 
-                for (int i = 0; i < face.getReferences().size(); i++) {
-                    if (i + 1 == face.getReferences().size()) {
-                        drawer.drawLine(graphics, faceColor,
+        drawer.initBuffer();
+        optDrawer.initBuffer();
+        model.getObjects().forEach(object -> {
+            for (Face face : object.getFaces()) {
+                if (normalsBraking(face.getReferences())) {
+                    Color faceColor = lambLight.calcLightness(face.getReferences());
+                   /* optDrawer.drawPolygon(
+                        graphics,
+                        face.getReferences()
+                            .stream()
+                            .map(dataReference -> vertices.get(dataReference.vertexIndex - 1))
+                            .collect(Collectors.toList())
+                    );*/
+                    for (int i = 0; i < face.getReferences().size(); i++) {
+                        if (i + 1 == face.getReferences().size()) {
+                            drawer.drawLine(graphics, faceColor,
+                                null,
+                                null,
                                 Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).x),
                                 Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).y),
                                 Math.round(vertices.get(face.getReferences().get(0).vertexIndex - 1).x),
                                 Math.round(vertices.get(face.getReferences().get(0).vertexIndex - 1).y),
                                 Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).z),
                                 Math.round(vertices.get(face.getReferences().get(0).vertexIndex - 1).z));
-                    } else {
-                        drawer.drawLine(graphics, faceColor,
+                        } else {
+                            drawer.drawLine(graphics, faceColor,
+                                null,
+                                null,
                                 Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).x),
                                 Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).y),
                                 Math.round(vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).x),
                                 Math.round(vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).y),
                                 Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).z),
                                 Math.round(vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).z));
+                        }
                     }
+                    faceRasterization(graphics, faceColor, face);
                 }
-
-                faceRasterization(graphics, faceColor, face);
             }
         });
     }
 
     private void faceRasterization(Graphics graphics, Color faceColor, Face face) {
+
         List<Vertex> list = face.getReferences()
-                .stream()
-                .map(dataReference -> vertices.get(dataReference.vertexIndex - 1))
-                .collect(Collectors.toList());
+            .stream()
+            .map(dataReference -> vertices.get(dataReference.vertexIndex - 1))
+            .collect(Collectors.toList());
         drawer.face_rasterization(graphics, faceColor, list);
 
     }
 
-    private void updateFrame() {
-        frame.repaint();
+    private boolean normalsBraking(List<DataReference> dataReferenceList) {
+
+        Vertex vector1 = vertices.get(dataReferenceList.get(0).vertexIndex - 1);
+        Vertex vector2 = vertices.get(dataReferenceList.get(1).vertexIndex - 1);
+        Vertex vector3 = vertices.get(dataReferenceList.get(2).vertexIndex - 1);
+
+        Vertex normal = vectorService.vectorMultiply(
+            vectorService.subtract(vector1, vector2),
+            vectorService.subtract(vector2, vector3)
+        );
+
+        return !(vectorService.scalarMultiply(vectorService.normalize(normal), eye) >= 0);
     }
 
     private boolean running;
 
+    @Override
+    public void run() {
+
+        while (running) {
+            updateFrame();
+        }
+    }
+
     public synchronized void start() {
+
         new Thread(this).start();
         running = true;
     }
 
-    public synchronized void stop() {
-        running = false;
+    private void updateFrame() {
+
+        frame.repaint();
     }
 }

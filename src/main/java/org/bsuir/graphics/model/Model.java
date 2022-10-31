@@ -6,7 +6,7 @@ import java.util.List;
 public class Model {
 
     private final List<Vertex> vertices = new ArrayList<>();
-    private final List<Normal> normals = new ArrayList<>();
+    private final List<Vertex> normals = new ArrayList<>();
     private final List<ModelObject> objects = new ArrayList<>();
 
 
@@ -14,7 +14,7 @@ public class Model {
         return vertices;
     }
 
-    public List<Normal> getNormals() {
+    public List<Vertex> getNormals() {
         return normals;
     }
 

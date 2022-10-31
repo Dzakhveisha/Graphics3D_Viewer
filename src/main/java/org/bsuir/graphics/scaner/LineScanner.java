@@ -14,6 +14,7 @@ public class LineScanner {
     private String[] segments;
 
     public boolean parse(BufferedReader reader) throws IOException {
+
         final String line = readLogicalLine(reader);
         if (line == null) {
             return false;
@@ -61,14 +62,16 @@ public class LineScanner {
     }
 
     public int getParameterCount() {
+
         return Math.max(0, segments.length - 1);
     }
 
     public String getStringParam(int index) {
+
         return segments[index + 1];
     }
 
-    public float getParam(int index){
+    public float getParam(int index) {
 
         final int segmentIndex = (index + 1);
         if (segmentIndex >= segments.length) {
@@ -77,7 +80,8 @@ public class LineScanner {
         return getFloatParam(index);
     }
 
-    private float getFloatParam(int index){
+    private float getFloatParam(int index) {
+
         try {
             return Float.parseFloat(getStringParam(index));
         } catch (NumberFormatException ex) {

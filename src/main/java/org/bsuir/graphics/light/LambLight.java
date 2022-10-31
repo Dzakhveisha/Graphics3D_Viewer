@@ -13,9 +13,9 @@ public class LambLight {
 
     private final Vertex theSun = new Vertex(2.5f, 0, -5);
 
-    private final List<Normal> normalList;
+    private final List<Vertex> normalList;
 
-    public LambLight(List<Normal> normalList) {
+    public LambLight(List<Vertex> normalList) {
 
         this.normalList = normalList;
         float length = (float) Math.sqrt(theSun.getElement(0) * theSun.getElement(0)
@@ -23,14 +23,13 @@ public class LambLight {
         theSun.setElement(0, theSun.getElement(0) * 1 / length);
         theSun.setElement(1, theSun.getElement(1) * 1 / length);
         theSun.setElement(2, theSun.getElement(2) * 1 / length);
-        System.out.println(length);
     }
 
     public Color calcLightness(List<DataReference> dataReferenceList) {
 
         double avgColor = 0;
         for (DataReference dataReference : dataReferenceList) {
-            Normal normal = normalList.get(dataReference.normalIndex - 1);
+            Vertex normal = normalList.get(dataReference.normalIndex - 1);
             float num = normal.x * theSun.x + normal.y * theSun.y + normal.z * theSun.z;
             double den = (
                 Math.sqrt(
@@ -44,7 +43,6 @@ public class LambLight {
         }
         avgColor = avgColor / dataReferenceList.size();
 
-      //  System.out.println(avgColor);
         avgColor = (avgColor * 255) / radians;
         Color returnColor;
 

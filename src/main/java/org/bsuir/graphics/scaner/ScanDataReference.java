@@ -13,6 +13,7 @@ public class ScanDataReference {
     }
 
     public void parse(String segment) {
+
         final String[] references = segment.split("/");
         vertexIndex = parseInt(references[0]);
         hasTexCoordIndex = (references.length >= 2) && !references[1].isEmpty();
@@ -26,18 +27,22 @@ public class ScanDataReference {
     }
 
     public int getVertexIndex() {
+
         return vertexIndex;
     }
 
     public int getTexCoordIndex() {
+
         return hasTexCoordIndex ? texCoordIndex : 0;
     }
 
     public int getNormalIndex() {
+
         return hasNormalIndex ? normalIndex : 0;
     }
 
     private static int parseInt(String text) {
+
         try {
             return Integer.parseInt(text);
         } catch (NumberFormatException ex) {

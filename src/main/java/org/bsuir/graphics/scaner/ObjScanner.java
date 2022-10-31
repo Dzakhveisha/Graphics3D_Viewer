@@ -18,6 +18,7 @@ public class ObjScanner {
     private final ScanDataReference dataReference = new ScanDataReference();
 
     public ObjParser getParser() {
+
         return handler;
     }
 
@@ -34,7 +35,7 @@ public class ObjScanner {
                 processObject(command);
             } else if (command.isCommand(COMMAND_NORMAL)) {
                 processNormal(command);
-            }else if (command.isCommand(COMMAND_FACE)) {
+            } else if (command.isCommand(COMMAND_FACE)) {
                 processFace(command);
             }
         }
@@ -42,14 +43,14 @@ public class ObjScanner {
 
     private void processVertex(LineScanner command) {
 
-       final float x = command.getParam(0) / 50;
+    /*   final float x = command.getParam(0) / 50;
         final float y = command.getParam(1) / 50;
         final float z = command.getParam(2) / 50;
-        final float w = command.getParam(3) / 50;
-//        final float x = command.getParam(0);
-//        final float y = command.getParam(1);
-//        final float z = command.getParam(2);
-//        final float w = command.getParam(3);
+        final float w = command.getParam(3) / 50;*/
+        final float x = command.getParam(0);
+        final float y = command.getParam(1);
+        final float z = command.getParam(2);
+        final float w = command.getParam(3);
         handler.onVertex(x, y, z, w);
     }
 

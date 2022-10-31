@@ -28,43 +28,46 @@ public class Vertex {
         this.w = w;
     }
 
-    public void set (float x, float y, float z, float w)
-    {
+    public void set(float x, float y, float z, float w) {
+
         this.x = x;
         this.y = y;
         this.z = z;
         this.w = w;
     }
 
-    public float getElement (int i)
-    {
+    public void set(Vertex vertex) {
+
+        this.x = vertex.x;
+        this.y = vertex.y;
+        this.z = vertex.z;
+        this.w = vertex.w;
+    }
+
+    public float getElement(int i) {
+
         if (i == 0) {
             return x;
         } else if (i == 1) {
             return y;
-        }
-        else if (i == 2) {
+        } else if (i == 2) {
             return z;
-        }
-        else if (i == 3) {
+        } else if (i == 3) {
             return w;
         } else {
             return 0;
         }
     }
 
-    public void setElement (int i, float value)
-    {
+    public void setElement(int i, float value) {
 
         if (i == 0) {
             x = value;
         } else if (i == 1) {
             y = value;
-        }
-        else if (i == 2) {
+        } else if (i == 2) {
             z = value;
-        }
-        else if (i == 3) {
+        } else if (i == 3) {
             w = value;
         }
     }

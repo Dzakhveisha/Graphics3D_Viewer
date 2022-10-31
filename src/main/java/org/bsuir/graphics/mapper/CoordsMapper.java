@@ -2,15 +2,14 @@ package org.bsuir.graphics.mapper;
 
 import org.bsuir.graphics.model.Matrix;
 import org.bsuir.graphics.model.Vertex;
-
-import java.util.List;
+import org.bsuir.graphics.utils.ProjectConstants;
 
 public class CoordsMapper {
 
     private Matrix matrix;
-    private final Vertex eye = new Vertex(0f, 0f, 5f, 1f);
-    private final Vertex target = new Vertex(0f, 0f, 0f, 1f);
-    private final Vertex up = new Vertex(0f, 1f, 0f, 0f);
+    private final Vertex eye = ProjectConstants.EYE;
+    private final Vertex target = ProjectConstants.TARGET;
+    private final Vertex up = ProjectConstants.UP;
 
     private float initRotationX = 0f;
     private float initRotationY = 0f;
@@ -28,6 +27,7 @@ public class CoordsMapper {
     }
 
     public Vertex fromModelSpaceToViewPort(Vertex vertex) {
+
         Vertex resultVertex;
         resultVertex = fromModelSpaceToWorldSpace(vertex);
         resultVertex = fromWorldSpaceToObserverSpace(resultVertex);
@@ -37,12 +37,13 @@ public class CoordsMapper {
         return resultVertex;
     }
 
-    private Vertex fromModelSpaceToWorldSpace(Vertex vertex) {
+    public Vertex fromModelSpaceToWorldSpace(Vertex vertex) {
 
         return matrix.multiply(vertex);
     }
 
     private Vertex fromWorldSpaceToObserverSpace(Vertex vertex) {
+
         Vertex zAxis = normalize(subtraction(eye, target));
         Vertex xAxis = normalize(multiply(up, zAxis));
 
@@ -51,6 +52,7 @@ public class CoordsMapper {
     }
 
     private Vertex fromObserverSpaceToProjectionSpace(Vertex Vertex) {
+
         float width = 1280f;
         float height = 720f;
         float zNear = 720f;
@@ -65,6 +67,7 @@ public class CoordsMapper {
     }
 
     private Vertex fromProjectionSpaceToViewPort(Vertex Vertex) {
+
         float width = 1280f;
         float height = 720f;
 
@@ -90,6 +93,7 @@ public class CoordsMapper {
     }
 
     private Matrix getTranslationMatrix(float x, float y, float z) {
+
         Matrix matrix = new Matrix();
         matrix.setElement(0, 3, x);
         matrix.setElement(1, 3, y);
@@ -99,6 +103,7 @@ public class CoordsMapper {
     }
 
     private Matrix getScaleMatrix(float x, float y, float z) {
+
         Matrix matrix = new Matrix();
         matrix.setElement(0, 0, x);
         matrix.setElement(1, 1, y);
@@ -108,6 +113,7 @@ public class CoordsMapper {
     }
 
     public Matrix rotateXMatrix(double angle) {
+
         Matrix rotationMatrix = new Matrix();
 
         float cosAngle = (float) Math.cos(angle);
@@ -122,6 +128,7 @@ public class CoordsMapper {
     }
 
     public Matrix rotateYMatrix(double angle) {
+
         Matrix rotationMatrix = new Matrix();
 
         float cosAngle = (float) Math.cos(angle);
@@ -138,6 +145,7 @@ public class CoordsMapper {
     }
 
     public Matrix rotateZMatrix(double angle) {
+
         Matrix rotationMatrix = new Matrix();
 
         float cosAngle = (float) Math.cos(angle);
@@ -152,20 +160,21 @@ public class CoordsMapper {
     }
 
     private Matrix getTransformMatrix(Vertex xAxis, Vertex yAxis, Vertex zAxis) {
+
         Matrix rotationMatrix = new Matrix();
-        rotationMatrix.setElement(0, 0, (float) xAxis.getElement(0));
-        rotationMatrix.setElement(0, 1, (float) xAxis.getElement(1));
-        rotationMatrix.setElement(0, 2, (float) xAxis.getElement(2));
+        rotationMatrix.setElement(0, 0, xAxis.getElement(0));
+        rotationMatrix.setElement(0, 1, xAxis.getElement(1));
+        rotationMatrix.setElement(0, 2, xAxis.getElement(2));
         rotationMatrix.setElement(0, 3, -scalarSubstraction(xAxis, eye));
 
-        rotationMatrix.setElement(1, 0, (float) yAxis.getElement(0));
-        rotationMatrix.setElement(1, 1, (float) yAxis.getElement(1));
-        rotationMatrix.setElement(1, 2, (float) yAxis.getElement(2));
+        rotationMatrix.setElement(1, 0, yAxis.getElement(0));
+        rotationMatrix.setElement(1, 1, yAxis.getElement(1));
+        rotationMatrix.setElement(1, 2, yAxis.getElement(2));
         rotationMatrix.setElement(1, 3, -scalarSubstraction(yAxis, eye));
 
-        rotationMatrix.setElement(2, 0, (float) zAxis.getElement(0));
-        rotationMatrix.setElement(2, 1, (float) zAxis.getElement(1));
-        rotationMatrix.setElement(2, 2, (float) zAxis.getElement(2));
+        rotationMatrix.setElement(2, 0, zAxis.getElement(0));
+        rotationMatrix.setElement(2, 1, zAxis.getElement(1));
+        rotationMatrix.setElement(2, 2, zAxis.getElement(2));
         rotationMatrix.setElement(2, 3, -scalarSubstraction(zAxis, eye));
 
         rotationMatrix.setElement(3, 3, 1);
@@ -174,9 +183,11 @@ public class CoordsMapper {
     }
 
     private Matrix getPerspectiveMatrix(float width, float height, float zNear, float zFar) {
+
         int fov = 75;
+        double aspect = width / height;
         Matrix matrix = new Matrix();
-        matrix.setElement(0, 0, (float) (1 / (1280d / 720d * Math.tan(fov / 2))));
+        matrix.setElement(0, 0, (float) (1 / (aspect * Math.tan(fov / 2))));
         matrix.setElement(1, 1, (float) (1 / Math.tan(fov / 2)));
         matrix.setElement(2, 2, zFar / (zNear - zFar));
         matrix.setElement(2, 3, (zNear * zFar) / (zNear - zFar));
@@ -185,6 +196,7 @@ public class CoordsMapper {
     }
 
     private Vertex subtraction(Vertex v1, Vertex v2) {
+
         Vertex result = new Vertex();
         for (int i = 0; i < 4; i++) {
             result.setElement(i, v1.getElement(i) - v2.getElement(i));
@@ -193,11 +205,13 @@ public class CoordsMapper {
     }
 
     private float scalarSubstraction(Vertex v1, Vertex v2) {
+
         return (v1.getElement(0) * v2.getElement(0)
             + v1.getElement(1) * v2.getElement(1) + v1.getElement(2) * v2.getElement(2));
     }
 
     private Vertex multiply(Vertex v1, Vertex v2) {
+
         Vertex result = new Vertex();
         result.setElement(0, v1.getElement(1) * v2.getElement(2) - v1.getElement(2) * v2.getElement(1));
         result.setElement(1, v1.getElement(2) * v2.getElement(0) - v1.getElement(0) * v2.getElement(2));
@@ -207,6 +221,7 @@ public class CoordsMapper {
     }
 
     private Vertex normalize(Vertex v) {
+
         float length = (float) Math.sqrt(v.getElement(0) * v.getElement(0)
             + v.getElement(1) * v.getElement(1) + v.getElement(2) * v.getElement(2));
         v.setElement(0, v.getElement(0) * 1 / length);
@@ -215,21 +230,16 @@ public class CoordsMapper {
         return v;
     }
 
-    public void move(List<Vertex> vertices, int deltaX, int deltaY) {
+    public void move(int deltaX, int deltaY) {
 
         initPlacementX += deltaX;
         initPlacementY -= deltaY;
 
-        Matrix matrix = getTranslationMatrix(deltaX, deltaY, 0);
-
-        vertices.parallelStream().forEach(objVector -> {
-                Vertex movedVector = matrix.multiply(objVector);
-                objVector.x = movedVector.getElement(0);
-                objVector.y = movedVector.getElement(1);
-                objVector.z = movedVector.getElement(2);
-                objVector.w = movedVector.getElement(3);
-            }
-        );
+        matrix = getTranslationMatrix(initPlacementX, initPlacementY, 0)
+            .multiply(getScaleMatrix(initScale, initScale, initScale))
+            .multiply(rotateXMatrix(initRotationX))
+            .multiply(rotateYMatrix(initRotationY))
+            .multiply(rotateZMatrix(0));
     }
 
     public void scale(double delay) {

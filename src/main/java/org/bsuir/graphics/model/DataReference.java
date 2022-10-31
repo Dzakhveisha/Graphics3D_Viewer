@@ -11,11 +11,6 @@ public class DataReference {
 
     }
 
-    public int getNormalIndex() {
-
-        return normalIndex;
-    }
-
     @Override
     public boolean equals(java.lang.Object obj) {
 

@@ -46,6 +46,7 @@ public class Matrix {
         return product;
     }
 
+
     public Matrix multiply (Matrix matrix)
     {
         Matrix product = new Matrix();
