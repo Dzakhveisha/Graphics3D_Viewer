@@ -51,6 +51,14 @@ public class DefaultModelMotion {
                     vertices.set(i, vertex);
                     i++;
                 }
+
+                i = 0;
+
+                for (Vertex vertex : model.getNormals()) {
+                    vertex = mapper.fromModelSpaceToWorldSpace(vertex);
+                    normals.set(i, vertex);
+                    i++;
+                }
             }
 
             @Override

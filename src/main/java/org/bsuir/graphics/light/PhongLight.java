@@ -13,9 +13,9 @@ public class PhongLight {
     private final VectorService vectorService = new VectorService();
 
     private static final float ambientStrength = 0.1f;
-    private static final float diffuseStrength = 0.8f;
+    private static final float diffuseStrength = 0.4f;
     private static final float specularStrength = 0.8f;
-    private static final float specularShines = 16;
+    private static final float specularShines = 5;
 
     public PhongLight() {
 
@@ -25,20 +25,20 @@ public class PhongLight {
 
     public Color calculatePixelColor(Vertex normal) {
 
-        float[] ambientColorValue = ambientLighting();
+        double[] ambientColorValue = ambientLighting();
         double[] diffuseColorValue = diffuseLighting(normal);
-        double[] specularColorValue = specularLighting(normal);
-        //int resultColorValue = (int) (ambientColorValue);
+        double[] specularColorValue =  specularLighting(normal);
+
         return new Color(
-            (int) (ambientColorValue[0] + diffuseColorValue[0] + specularColorValue[0]),
-            (int) (ambientColorValue[1] + diffuseColorValue[1] + specularColorValue[1]),
-            (int) (ambientColorValue[2] + diffuseColorValue[2] + specularColorValue[2])
+            Math.min((int) (ambientColorValue[0] + diffuseColorValue[0] + specularColorValue[0]), 255),
+            Math.min((int) (ambientColorValue[1] + diffuseColorValue[1] + specularColorValue[1]), 255),
+            Math.min((int) (ambientColorValue[2] + diffuseColorValue[2] + specularColorValue[2]), 255)
         );
     }
 
-    private float[] ambientLighting() {
+    private double[] ambientLighting() {
 
-        float[] color = {200, 0, 0};
+        double[] color = {0, 0, 255};
         for (int i = 0; i < 3; i++) {
             color[i] *= ambientStrength;
         }
@@ -47,7 +47,7 @@ public class PhongLight {
 
     private double[] diffuseLighting(Vertex pixelVector) {
 
-        double[] color = {255, 0, 0};
+        double[] color = {200, 200, 200};
         double scalar = Math.max(vectorService.scalarMultiply(vectorService.normalize(pixelVector), theSunVector), 0);
         for (int i = 0; i < 3; i++) {
             color[i] = color[i] * scalar * diffuseStrength;

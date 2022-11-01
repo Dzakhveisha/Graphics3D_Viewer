@@ -32,7 +32,8 @@ public class DrawUtils {
 
     public void drawHorLine(
         Graphics g,
-        Color color,
+        Vertex normalP1,
+        Vertex normalP2,
         int xStart,
         int yStart,
         float zStart,
@@ -40,7 +41,7 @@ public class DrawUtils {
         int yEnd,
         float zEnd
     ) {
-        //g.setColor(color);
+
         float zIncrement = (zEnd - zStart) / Math.abs(xEnd - xStart);
         float zDepth = zStart;
         if (xStart < xEnd) {
@@ -48,7 +49,17 @@ public class DrawUtils {
                 if (x < SCREEN_WIDTH - 1 && x > 0 && yStart < SCREEN_HEIGHT - 1 && yStart > 0) {
                     if (zBuffer[x][yStart] > zDepth) {
                         zBuffer[x][yStart] = zDepth;
-                        g.setColor(phongLight.calculatePixelColor(new Vertex(x, yStart, zDepth)));
+
+                        var pixelNormal =
+                            calcNormal(
+                                new Vertex(x, yStart, zDepth),
+                                new Vertex(xStart, yStart, zStart),
+                                new Vertex(xEnd, yEnd, zEnd),
+                                normalP1,
+                                normalP2
+                            );
+
+                        g.setColor(phongLight.calculatePixelColor(pixelNormal));
                         g.drawLine(x, yStart, x, yStart);
                     }
                 }
@@ -59,7 +70,16 @@ public class DrawUtils {
                 if (x < SCREEN_WIDTH - 1 && x > 0 && yStart < SCREEN_HEIGHT - 1 && yStart > 0) {
                     if (zBuffer[x][yStart] > zDepth) {
                         zBuffer[x][yStart] = zDepth;
-                        g.setColor(phongLight.calculatePixelColor(new Vertex(x, yStart, zDepth)));
+
+                        var pixelNormal =
+                            calcNormal(
+                                new Vertex(x, yStart, zDepth),
+                                new Vertex(xStart, yStart, zStart),
+                                new Vertex(xEnd, yEnd, zEnd),
+                                normalP1,
+                                normalP2
+                            );
+                        g.setColor(phongLight.calculatePixelColor(pixelNormal));
                         g.drawLine(x, yStart, x, yStart);
                     }
                 }
@@ -69,9 +89,18 @@ public class DrawUtils {
         }
     }
 
-    public void drawLine(Graphics g, Color color, Vertex normal1, Vertex normal2, int xStart, int yStart, int xEnd, int yEnd, int zStart, int zEnd) {
+    public void drawLine(
+        Graphics g,
+        Vertex normalP1,
+        Vertex normalP2,
+        int xStart,
+        int yStart,
+        int xEnd,
+        int yEnd,
+        int zStart,
+        int zEnd
+    ) {
 
-        // g.setColor(color);
         int x;
         int y;
         int dx;
@@ -119,7 +148,16 @@ public class DrawUtils {
             if (zBuffer[x][y] > zDepth) {
                 zBuffer[x][y] = zDepth;
 
-                g.setColor(phongLight.calculatePixelColor(new Vertex(x, y, zDepth)));
+                var pixelNormal =
+                    calcNormal(
+                        new Vertex(x, y, zDepth),
+                        new Vertex(xStart, yStart, zStart),
+                        new Vertex(xEnd, yEnd, zEnd),
+                        normalP1,
+                        normalP2
+                    );
+
+                g.setColor(phongLight.calculatePixelColor(pixelNormal));
                 g.drawLine(x, y, x, y);
             }
 
@@ -145,7 +183,17 @@ public class DrawUtils {
             if (x < SCREEN_WIDTH - 1 && x > 0 && y < SCREEN_HEIGHT - 1 && y > 0)
                 if (zBuffer[x][y] > zDepth) {
                     zBuffer[x][y] = zDepth;
-                    g.setColor(phongLight.calculatePixelColor(new Vertex(x, y, zDepth)));
+
+                    var pixelNormal =
+                        calcNormal(
+                            new Vertex(x, y, zDepth),
+                            new Vertex(xStart, yStart, zStart),
+                            new Vertex(xEnd, yEnd, zEnd),
+                            normalP1,
+                            normalP2
+                        );
+
+                    g.setColor(phongLight.calculatePixelColor(pixelNormal));
                     g.drawLine(x, y, x, y);
                 }
         }
@@ -235,45 +283,79 @@ public class DrawUtils {
         return null;
     }
 
-    public void face_rasterization(Graphics g, Color faceColor, List<Vertex> vertexList) {
+    public void face_rasterization(Graphics g, List<Vertex> vertexList, List<Vertex> normalList) {
 
         int highestPixel = Math.round(findHigestVertex(vertexList).y);
         int shortestPixel = Math.round(findShortestVertex(vertexList).y);
 
         List<Vertex> points = new ArrayList<>();
+        List<Vertex> pointsNormals = new ArrayList<>();
         for (int i = highestPixel; i > shortestPixel; i--) {
             points.clear();
+            pointsNormals.clear();
             for (int j = 0; j < vertexList.size(); j++) {
                 if (j + 1 == vertexList.size()) {
                     Vertex interseption = bresenhem_interseption(vertexList.get(0), vertexList.get(j), i);
                     if (interseption != null) {
                         points.add(interseption);
+
+                        pointsNormals.add(
+                            calcNormal(interseption, vertexList.get(0), vertexList.get(j), normalList.get(0), normalList.get(j))
+                        );
                     }
                 } else {
                     Vertex interseption = bresenhem_interseption(vertexList.get(j), vertexList.get(j + 1), i);
                     if (interseption != null) {
                         points.add(interseption);
+
+                        pointsNormals.add(
+                            calcNormal(interseption, vertexList.get(j), vertexList.get(j + 1), normalList.get(j), normalList.get(j + 1))
+                        );
                     }
                 }
             }
             if (points.size() == 2) {
-                drawHorLine(g, faceColor, Math.round(points.get(0).x), Math.round(points.get(0).y),
-                    Math.round(points.get(0).z), Math.round(points.get(1).x), Math.round(points.get(1).y),
+                drawHorLine(g,
+                    pointsNormals.get(0),
+                    pointsNormals.get(1),
+                    Math.round(points.get(0).x),
+                    Math.round(points.get(0).y),
+                    Math.round(points.get(0).z),
+                    Math.round(points.get(1).x),
+                    Math.round(points.get(1).y),
                     Math.round(points.get(1).z));
             }
             if (points.size() > 2) {
                 if (!points.get(0).equals(points.get(1))) {
-                    drawHorLine(g, faceColor, Math.round(points.get(0).x), Math.round(points.get(0).y),
-                        Math.round(points.get(0).z), Math.round(points.get(1).x), Math.round(points.get(1).y),
+                    drawHorLine(g,
+                        pointsNormals.get(0),
+                        pointsNormals.get(1),
+                        Math.round(points.get(0).x),
+                        Math.round(points.get(0).y),
+                        Math.round(points.get(0).z),
+                        Math.round(points.get(1).x),
+                        Math.round(points.get(1).y),
                         Math.round(points.get(1).z));
                 } else {
                     if (!points.get(0).equals(points.get(2))) {
-                        drawHorLine(g, faceColor, Math.round(points.get(0).x), Math.round(points.get(0).y),
-                            Math.round(points.get(0).z), Math.round(points.get(2).x), Math.round(points.get(2).y),
+                        drawHorLine(g,
+                            pointsNormals.get(0),
+                            pointsNormals.get(2),
+                            Math.round(points.get(0).x),
+                            Math.round(points.get(0).y),
+                            Math.round(points.get(0).z),
+                            Math.round(points.get(2).x),
+                            Math.round(points.get(2).y),
                             Math.round(points.get(2).z));
                     } else {
-                        drawHorLine(g, faceColor, Math.round(points.get(0).x), Math.round(points.get(0).y),
-                            Math.round(points.get(0).z), Math.round(points.get(3).x), Math.round(points.get(3).y),
+                        drawHorLine(g,
+                            pointsNormals.get(0),
+                            pointsNormals.get(3),
+                            Math.round(points.get(0).x),
+                            Math.round(points.get(0).y),
+                            Math.round(points.get(0).z),
+                            Math.round(points.get(3).x),
+                            Math.round(points.get(3).y),
                             Math.round(points.get(3).z));
                     }
                 }
@@ -317,5 +399,30 @@ public class DrawUtils {
     private static int sign(int x) {
 
         return Integer.compare(x, 0);
+    }
+
+    private Vertex calcNormal(Vertex point, Vertex pointStart, Vertex pointFinish, Vertex normalStart, Vertex normalEnd) {
+
+        /*if (!findHigestVertex(List.of(pointStart, pointFinish)).equals(pointStart)){
+            Vertex temp = pointStart;
+            pointStart = pointFinish;
+            pointFinish = temp;
+
+            Vertex tempNormal = normalStart;
+            normalStart = normalEnd;
+            normalEnd = tempNormal;
+
+        }*/
+
+        double s = vectorService.getLength(
+            vectorService.subtract(point, pointStart)
+        ) / vectorService.getLength(
+            vectorService.subtract(pointFinish, pointStart)
+        );
+
+            return vectorService.add(
+                vectorService.multiply((float) s, normalEnd),
+                vectorService.multiply((float) (1 - s), normalStart)
+            );
     }
 }

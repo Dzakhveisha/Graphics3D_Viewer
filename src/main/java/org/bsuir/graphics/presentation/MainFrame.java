@@ -81,7 +81,7 @@ public class MainFrame implements Runnable {
     private ObjScanner readFile() {
 
         ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream("Cube.obj");
+        InputStream inputStream = classLoader.getResourceAsStream("cat.obj");
         //Ford_Mustang_Shelby_GT500KR.obj
 
         if (inputStream == null) {
@@ -116,19 +116,12 @@ public class MainFrame implements Runnable {
         model.getObjects().forEach(object -> {
             for (Face face : object.getFaces()) {
                 if (normalsBraking(face.getReferences())) {
-                    Color faceColor = lambLight.calcLightness(face.getReferences());
-                   /* optDrawer.drawPolygon(
-                        graphics,
-                        face.getReferences()
-                            .stream()
-                            .map(dataReference -> vertices.get(dataReference.vertexIndex - 1))
-                            .collect(Collectors.toList())
-                    );*/
+
                     for (int i = 0; i < face.getReferences().size(); i++) {
                         if (i + 1 == face.getReferences().size()) {
-                            drawer.drawLine(graphics, faceColor,
-                                null,
-                                null,
+                            drawer.drawLine(graphics,
+                                normals.get(face.getReferences().get(i).normalIndex - 1),
+                                normals.get(face.getReferences().get(0).normalIndex - 1),
                                 Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).x),
                                 Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).y),
                                 Math.round(vertices.get(face.getReferences().get(0).vertexIndex - 1).x),
@@ -136,9 +129,9 @@ public class MainFrame implements Runnable {
                                 Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).z),
                                 Math.round(vertices.get(face.getReferences().get(0).vertexIndex - 1).z));
                         } else {
-                            drawer.drawLine(graphics, faceColor,
-                                null,
-                                null,
+                            drawer.drawLine(graphics,
+                                normals.get(face.getReferences().get(i).normalIndex - 1),
+                                normals.get(face.getReferences().get(i + 1).normalIndex - 1),
                                 Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).x),
                                 Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).y),
                                 Math.round(vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).x),
@@ -147,19 +140,22 @@ public class MainFrame implements Runnable {
                                 Math.round(vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).z));
                         }
                     }
-                    faceRasterization(graphics, faceColor, face);
+                    faceRasterization(graphics, face);
                 }
             }
         });
     }
 
-    private void faceRasterization(Graphics graphics, Color faceColor, Face face) {
+    private void faceRasterization(Graphics graphics, Face face) {
 
         List<Vertex> list = face.getReferences()
             .stream()
             .map(dataReference -> vertices.get(dataReference.vertexIndex - 1))
             .collect(Collectors.toList());
-        drawer.face_rasterization(graphics, faceColor, list);
+        List<Vertex> normalList = face.getReferences()
+            .stream()
+            .map(dataReference -> normals.get(dataReference.normalIndex - 1)).toList();
+        drawer.face_rasterization(graphics, list, normalList);
 
     }
 

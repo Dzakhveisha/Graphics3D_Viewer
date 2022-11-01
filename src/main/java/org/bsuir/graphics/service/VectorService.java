@@ -36,6 +36,15 @@ public class VectorService {
         );
     }
 
+    public Vertex multiply(float coefficient, Vertex vertex) {
+
+        return new Vertex(
+            coefficient * vertex.x,
+            coefficient * vertex.y,
+            coefficient * vertex.z
+        );
+    }
+
     public double getLength(Vertex vertex) {
 
         return Math.sqrt(vertex.x * vertex.x + vertex.y * vertex.y + vertex.z * vertex.z);
