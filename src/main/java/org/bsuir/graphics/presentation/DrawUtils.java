@@ -59,7 +59,7 @@ public class DrawUtils {
                                 normalP2
                             );
 
-                        g.setColor(phongLight.calculatePixelColor(pixelNormal));
+                        g.setColor(phongLight.calculatePixelColor(pixelNormal, new Vertex(x, yStart, zDepth)));
                         g.drawLine(x, yStart, x, yStart);
                     }
                 }
@@ -79,7 +79,7 @@ public class DrawUtils {
                                 normalP1,
                                 normalP2
                             );
-                        g.setColor(phongLight.calculatePixelColor(pixelNormal));
+                        g.setColor(phongLight.calculatePixelColor(pixelNormal, new Vertex(x, yStart, zDepth)));
                         g.drawLine(x, yStart, x, yStart);
                     }
                 }
@@ -157,7 +157,7 @@ public class DrawUtils {
                         normalP2
                     );
 
-                g.setColor(phongLight.calculatePixelColor(pixelNormal));
+                g.setColor(phongLight.calculatePixelColor(pixelNormal, new Vertex(x, y, zDepth)));
                 g.drawLine(x, y, x, y);
             }
 
@@ -193,7 +193,7 @@ public class DrawUtils {
                             normalP2
                         );
 
-                    g.setColor(phongLight.calculatePixelColor(pixelNormal));
+                    g.setColor(phongLight.calculatePixelColor(pixelNormal, new Vertex(x, y, zDepth)));
                     g.drawLine(x, y, x, y);
                 }
         }

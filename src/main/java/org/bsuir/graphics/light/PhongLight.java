@@ -9,25 +9,23 @@ import java.awt.*;
 public class PhongLight {
 
     private final Vertex theSunVector;
-    private final Vertex eye;
     private final VectorService vectorService = new VectorService();
 
     private static final float ambientStrength = 0.1f;
     private static final float diffuseStrength = 0.4f;
     private static final float specularStrength = 0.8f;
-    private static final float specularShines = 5;
+    private static final float specularShines = 32;
 
     public PhongLight() {
 
         this.theSunVector = vectorService.normalize(ProjectConstants.THE_SUN);
-        this.eye = vectorService.normalize(ProjectConstants.EYE);
     }
 
-    public Color calculatePixelColor(Vertex normal) {
+    public Color calculatePixelColor(Vertex normal, Vertex pixelPosition) {
 
         double[] ambientColorValue = ambientLighting();
         double[] diffuseColorValue = diffuseLighting(normal);
-        double[] specularColorValue =  specularLighting(normal);
+        double[] specularColorValue = specularLighting(normal, pixelPosition);
 
         return new Color(
             Math.min((int) (ambientColorValue[0] + diffuseColorValue[0] + specularColorValue[0]), 255),
@@ -55,9 +53,10 @@ public class PhongLight {
         return color;
     }
 
-    private double[] specularLighting(Vertex pixelVector) {
+    private double[] specularLighting(Vertex pixelVector, Vertex pixelPosition) {
 
         double[] color = {255, 255, 255};
+        Vertex eye = vectorService.normalize(vectorService.subtract(ProjectConstants.EYE, pixelPosition));
         Vertex specularDirection = vectorService.normalize(vectorService.add(theSunVector, eye));
         double specular = vectorService.scalarMultiply(vectorService.normalize(pixelVector), specularDirection);
         double scalar = Math.pow(Math.max(specular, 0), specularShines);

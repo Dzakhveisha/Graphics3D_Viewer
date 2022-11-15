@@ -35,8 +35,6 @@ public class MainFrame implements Runnable {
     private final List<Vertex> normals;
     private final CoordsMapper mapper = new CoordsMapper();
     private static final DrawUtils drawer = new DrawUtils();
-
-    private static final Drawer optDrawer = new Drawer();
     private VectorService vectorService = new VectorService();
 
     private final Vertex eye = vectorService.normalize(ProjectConstants.EYE);
@@ -112,7 +110,6 @@ public class MainFrame implements Runnable {
     private void draw3D(Graphics graphics) {
 
         drawer.initBuffer();
-        optDrawer.initBuffer();
         model.getObjects().forEach(object -> {
             for (Face face : object.getFaces()) {
                 if (normalsBraking(face.getReferences())) {
