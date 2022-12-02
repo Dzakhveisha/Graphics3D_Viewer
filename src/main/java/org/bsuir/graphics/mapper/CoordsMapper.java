@@ -60,6 +60,7 @@ public class CoordsMapper {
 
         Matrix matrix = getPerspectiveMatrix(width, height, zNear, zFar);
         Vertex result = matrix.multiply(Vertex);
+        result.wAd = result.w;
         for (int i = 0; i < 4; i++) {
             result.setElement(i, result.getElement(i) / result.getElement(3));
         }

@@ -4,6 +4,7 @@ import org.bsuir.graphics.model.DataReference;
 import org.bsuir.graphics.model.Face;
 import org.bsuir.graphics.model.Model;
 import org.bsuir.graphics.model.ModelObject;
+import org.bsuir.graphics.model.Texture;
 import org.bsuir.graphics.model.Vertex;
 
 public class ObjParser {
@@ -26,6 +27,7 @@ public class ObjParser {
     public void onObject(String objectName) {
 
         currentObject = new ModelObject();
+        //currentObject.setMaterialsName("shovel_Normal.png", "shovel_diffuse.png", "shovel_Reflect.png");
         model.getObjects().add(currentObject);
     }
 
@@ -52,6 +54,11 @@ public class ObjParser {
         currentFace.getReferences().add(reference);
     }
 
+    public void onMaterialReference(String reflectMaterialName, String diffuseMaterialName, String normalMaterialName){
+        assureCurrentObject();
+        currentObject.setMaterialsName(normalMaterialName, diffuseMaterialName, reflectMaterialName);
+    }
+
     private void assureCurrentObject() {
 
         if (currentObject != null) {
@@ -59,5 +66,12 @@ public class ObjParser {
         }
         currentObject = new ModelObject("Default");
         model.getObjects().add(currentObject);
+    }
+
+    public void onTextureCoordinate(float u, float v, float w) {
+
+        Texture texCoord = new Texture(u, v, w);
+
+        model.getTextures().add(texCoord);
     }
 }

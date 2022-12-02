@@ -1,10 +1,11 @@
 package org.bsuir.graphics.presentation;
 
-import org.bsuir.graphics.light.LambLight;
 import org.bsuir.graphics.mapper.CoordsMapper;
 import org.bsuir.graphics.model.DataReference;
 import org.bsuir.graphics.model.Face;
 import org.bsuir.graphics.model.Model;
+import org.bsuir.graphics.model.ModelObject;
+import org.bsuir.graphics.model.Texture;
 import org.bsuir.graphics.model.Vertex;
 import org.bsuir.graphics.motion.DefaultModelMotion;
 import org.bsuir.graphics.scaner.ObjScanner;
@@ -21,7 +22,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import java.util.stream.Collectors;
 
 public class MainFrame implements Runnable {
@@ -30,18 +30,19 @@ public class MainFrame implements Runnable {
     private static final int SCREEN_HEIGHT = ProjectConstants.SCREEN_HEIGHT;
     private final Model model;
 
-    private LambLight lambLight;
     private final List<Vertex> vertices;
     private final List<Vertex> normals;
+    private final List<Texture> textures;
     private final CoordsMapper mapper = new CoordsMapper();
-    private static final DrawUtils drawer = new DrawUtils();
-    private VectorService vectorService = new VectorService();
+    private final DrawUtils drawer;
+    private final VectorService vectorService = new VectorService();
 
     private final Vertex eye = vectorService.normalize(ProjectConstants.EYE);
     private final JFrame frame;
 
     public MainFrame() {
 
+        drawer = new DrawUtils(mapper);
         model = readFile().getParser().getModel();
 
         vertices = new ArrayList<>();
@@ -51,8 +52,8 @@ public class MainFrame implements Runnable {
 
         normals = new ArrayList<>();
         normals.addAll(model.getNormals());
-
-        lambLight = new LambLight(normals);
+        textures = new ArrayList<>();
+        textures.addAll(model.getTextures());
 
         frame = new JFrame() {
 
@@ -79,7 +80,7 @@ public class MainFrame implements Runnable {
     private ObjScanner readFile() {
 
         ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream("cat.obj");
+        InputStream inputStream = classLoader.getResourceAsStream("c.obj");
         //Ford_Mustang_Shelby_GT500KR.obj
 
         if (inputStream == null) {
@@ -117,8 +118,11 @@ public class MainFrame implements Runnable {
                     for (int i = 0; i < face.getReferences().size(); i++) {
                         if (i + 1 == face.getReferences().size()) {
                             drawer.drawLine(graphics,
+                                object,
                                 normals.get(face.getReferences().get(i).normalIndex - 1),
                                 normals.get(face.getReferences().get(0).normalIndex - 1),
+                                textures.get(face.getReferences().get(i).texCoordIndex - 1),
+                                textures.get(face.getReferences().get(0).texCoordIndex - 1),
                                 Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).x),
                                 Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).y),
                                 Math.round(vertices.get(face.getReferences().get(0).vertexIndex - 1).x),
@@ -127,8 +131,11 @@ public class MainFrame implements Runnable {
                                 Math.round(vertices.get(face.getReferences().get(0).vertexIndex - 1).z));
                         } else {
                             drawer.drawLine(graphics,
+                                object,
                                 normals.get(face.getReferences().get(i).normalIndex - 1),
                                 normals.get(face.getReferences().get(i + 1).normalIndex - 1),
+                                textures.get(face.getReferences().get(i).texCoordIndex - 1),
+                                textures.get(face.getReferences().get(i + 1).texCoordIndex - 1),
                                 Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).x),
                                 Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).y),
                                 Math.round(vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).x),
@@ -137,13 +144,13 @@ public class MainFrame implements Runnable {
                                 Math.round(vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).z));
                         }
                     }
-                    faceRasterization(graphics, face);
+                    faceRasterization(graphics, object, face);
                 }
             }
         });
     }
 
-    private void faceRasterization(Graphics graphics, Face face) {
+    private void faceRasterization(Graphics graphics, ModelObject object, Face face) {
 
         List<Vertex> list = face.getReferences()
             .stream()
@@ -151,8 +158,13 @@ public class MainFrame implements Runnable {
             .collect(Collectors.toList());
         List<Vertex> normalList = face.getReferences()
             .stream()
-            .map(dataReference -> normals.get(dataReference.normalIndex - 1)).toList();
-        drawer.face_rasterization(graphics, list, normalList);
+            .map(dataReference -> normals.get(dataReference.normalIndex - 1))
+            .toList();
+        List<Texture> textureList = face.getReferences()
+            .stream()
+            .map(dataReference -> textures.get(dataReference.texCoordIndex - 1))
+            .toList();
+        drawer.face_rasterization(graphics, object, list, normalList, textureList);
 
     }
 

@@ -9,6 +9,8 @@ public class Vertex {
     public float z = 0.0f;
     public float w = 1.0f;
 
+    public float wAd = 1.0f;
+
     public Vertex() {
 
     }
@@ -26,6 +28,15 @@ public class Vertex {
         this.y = y;
         this.z = z;
         this.w = w;
+    }
+
+    public Vertex(float x, float y, float z, float w, float w1) {
+
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
+        this.wAd = wAd;
     }
 
     public void set(float x, float y, float z, float w) {
