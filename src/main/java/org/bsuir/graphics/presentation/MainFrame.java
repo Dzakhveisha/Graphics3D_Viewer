@@ -80,7 +80,7 @@ public class MainFrame implements Runnable {
     private ObjScanner readFile() {
 
         ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream("c.obj");
+        InputStream inputStream = classLoader.getResourceAsStream("model4.obj");
         //Ford_Mustang_Shelby_GT500KR.obj
 
         if (inputStream == null) {
@@ -113,6 +113,7 @@ public class MainFrame implements Runnable {
         drawer.initBuffer();
         model.getObjects().forEach(object -> {
             for (Face face : object.getFaces()) {
+               // face = object.getFaces().get(2);
                 if (normalsBraking(face.getReferences())) {
 
                     for (int i = 0; i < face.getReferences().size(); i++) {
@@ -123,12 +124,9 @@ public class MainFrame implements Runnable {
                                 normals.get(face.getReferences().get(0).normalIndex - 1),
                                 textures.get(face.getReferences().get(i).texCoordIndex - 1),
                                 textures.get(face.getReferences().get(0).texCoordIndex - 1),
-                                Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).x),
-                                Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).y),
-                                Math.round(vertices.get(face.getReferences().get(0).vertexIndex - 1).x),
-                                Math.round(vertices.get(face.getReferences().get(0).vertexIndex - 1).y),
-                                Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).z),
-                                Math.round(vertices.get(face.getReferences().get(0).vertexIndex - 1).z));
+                                vertices.get(face.getReferences().get(i).vertexIndex - 1),
+                                vertices.get(face.getReferences().get(0).vertexIndex - 1)
+                            );
                         } else {
                             drawer.drawLine(graphics,
                                 object,
@@ -136,12 +134,9 @@ public class MainFrame implements Runnable {
                                 normals.get(face.getReferences().get(i + 1).normalIndex - 1),
                                 textures.get(face.getReferences().get(i).texCoordIndex - 1),
                                 textures.get(face.getReferences().get(i + 1).texCoordIndex - 1),
-                                Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).x),
-                                Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).y),
-                                Math.round(vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).x),
-                                Math.round(vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).y),
-                                Math.round(vertices.get(face.getReferences().get(i).vertexIndex - 1).z),
-                                Math.round(vertices.get(face.getReferences().get(i + 1).vertexIndex - 1).z));
+                                vertices.get(face.getReferences().get(i).vertexIndex - 1),
+                                vertices.get(face.getReferences().get(i + 1).vertexIndex - 1)
+                            );
                         }
                     }
                     faceRasterization(graphics, object, face);

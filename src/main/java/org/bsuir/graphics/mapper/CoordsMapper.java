@@ -13,7 +13,7 @@ public class CoordsMapper {
 
     private float initRotationX = 0f;
     private float initRotationY = 0f;
-    private float initScale = 1;
+    private float initScale = 2;
     private float initPlacementX = 0;
     private float initPlacementY = 0;
 

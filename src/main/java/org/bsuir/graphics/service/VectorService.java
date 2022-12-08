@@ -19,12 +19,14 @@ public class VectorService {
         );
     }
 
-    public Texture subtract(Texture texture1, Texture texture2) {
+    public Vertex subtractW(Vertex vertex1, Vertex vertex2) {
 
-        return new Texture(
-            texture1.u - texture2.u,
-            texture1.v - texture2.v,
-            texture1.w - texture2.w
+        return new Vertex(
+            vertex1.x - vertex2.x,
+            vertex1.y - vertex2.y,
+            vertex1.z - vertex2.z,
+            1,
+            vertex1.wAd - vertex2.wAd
         );
     }
 
@@ -60,6 +62,11 @@ public class VectorService {
     public double getLength(Vertex vertex) {
 
         return Math.sqrt(vertex.x * vertex.x + vertex.y * vertex.y + vertex.z * vertex.z);
+    }
+
+    public double getLengthW(Vertex vertex) {
+
+        return Math.sqrt(vertex.x * vertex.x + vertex.y * vertex.y + vertex.z * vertex.z + vertex.wAd * vertex.wAd);
     }
 
     public double getLength(Texture texture) {

@@ -11,7 +11,6 @@ import org.bsuir.graphics.utils.ProjectConstants;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 public class DrawUtils {
@@ -46,34 +45,38 @@ public class DrawUtils {
         Texture texture1,
         Texture texture2,
         Vertex vertex1,
-        Vertex vertex2,
-        int xStart,
-        int yStart,
-        float zStart,
-        int xEnd,
-        int yEnd,
-        float zEnd
+        Vertex vertex2
     ) {
 
-        float zIncrement = (zEnd - zStart) / Math.abs(xEnd - xStart);
-        float zDepth = zStart;
+        int yStart = Math.round(vertex1.y);
+        int xStart = Math.round(vertex1.x);
+        int xEnd = Math.round(vertex2.x);
+        float zIncrement = (vertex2.z - vertex1.z) / Math.abs(xEnd - xStart);
+        float zDepth = vertex1.z;
         if (xStart < xEnd) {
             for (int x = xStart; x < xEnd; x++) {
                 if (x < SCREEN_WIDTH - 1 && x > 0 && yStart < SCREEN_HEIGHT - 1 && yStart > 0) {
                     if (zBuffer[x][yStart] > zDepth) {
                         zBuffer[x][yStart] = zDepth;
 
-                        double interpolation = getInterpolationCoef(new Vertex(x, yStart, zDepth),
-                            new Vertex(xStart, yStart, zStart),
-                            new Vertex(xEnd, yEnd, zEnd));
+                        double interpolation = getInterpolationCoef(
+                            new Vertex(x, yStart, zDepth),
+                            vertex1,
+                            vertex2
+                        );
 
-                        Texture textile = getPolygonTextiles(texture1, texture2, vertex1.wAd, vertex2.wAd, interpolation);
+                        Texture textile = getPolygonTextiles(
+                            texture1,
+                            texture2,
+                            vertex1.wAd,
+                            vertex2.wAd,
+                            interpolation);
 
                         var pixelNormal =
                             calcNormal(
                                 new Vertex(x, yStart, zDepth),
-                                new Vertex(xStart, yStart, zStart),
-                                new Vertex(xEnd, yEnd, zEnd),
+                                vertex1,
+                                vertex2,
                                 normalP1,
                                 normalP2
                             );
@@ -92,16 +95,18 @@ public class DrawUtils {
                         zBuffer[x][yStart] = zDepth;
 
                         double interpolation = getInterpolationCoef(new Vertex(x, yStart, zDepth),
-                            new Vertex(xStart, yStart, zStart),
-                            new Vertex(xEnd, yEnd, zEnd));
+                            vertex1,
+                            vertex2
+                        );
 
-                        Texture textile = getPolygonTextiles(texture1, texture2, vertex1.wAd, vertex2.wAd, interpolation);
+                        Texture textile = getPolygonTextiles(texture1, texture2, vertex1.wAd, vertex2.wAd,
+                            interpolation);
 
                         var pixelNormal =
                             calcNormal(
                                 new Vertex(x, yStart, zDepth),
-                                new Vertex(xStart, yStart, zStart),
-                                new Vertex(xEnd, yEnd, zEnd),
+                                vertex1,
+                                vertex2,
                                 normalP1,
                                 normalP2
                             );
@@ -122,12 +127,8 @@ public class DrawUtils {
         Vertex normalP2,
         Texture texture1,
         Texture texture2,
-        int xStart,
-        int yStart,
-        int xEnd,
-        int yEnd,
-        int zStart,
-        int zEnd
+        Vertex vertex1,
+        Vertex vertex2
     ) {
 
         int x;
@@ -142,8 +143,8 @@ public class DrawUtils {
         int el;
         int err;
 
-        dx = xEnd - xStart;
-        dy = yEnd - yStart;
+        dx = Math.round(vertex2.x) - Math.round(vertex1.x);
+        dy = Math.round(vertex2.y) - Math.round(vertex1.y);
 
         incx = sign(dx);
         incy = sign(dy);
@@ -168,26 +169,26 @@ public class DrawUtils {
             el = dy;
         }
 
-        x = xStart;
-        y = yStart;
+        x = Math.round(vertex1.x);
+        y = Math.round(vertex1.y);
         err = el / 2;
 
-        float zDepth = zStart;
+        float zDepth = vertex1.z;
         if (x < SCREEN_WIDTH - 1 && x > 0 && y < SCREEN_HEIGHT - 1 && y > 0)
             if (zBuffer[x][y] > zDepth) {
                 zBuffer[x][y] = zDepth;
 
-                double interpolation = getInterpolationCoef(new Vertex(x, yStart, zDepth),
-                    new Vertex(xStart, yStart, zStart),
-                    new Vertex(xEnd, yEnd, zEnd));
+                double interpolation = getInterpolationCoef(new Vertex(x, y, zDepth),
+                    vertex1,
+                    vertex2);
 
-                Texture textile = getPolygonTextiles(texture1, texture2, zStart, zEnd, interpolation);
+                Texture textile = getPolygonTextiles(texture1, texture2, vertex1.wAd, vertex2.wAd, interpolation);
 
                 var pixelNormal =
                     calcNormal(
                         new Vertex(x, y, zDepth),
-                        new Vertex(xStart, yStart, zStart),
-                        new Vertex(xEnd, yEnd, zEnd),
+                        vertex1,
+                        vertex2,
                         normalP1,
                         normalP2
                     );
@@ -198,10 +199,10 @@ public class DrawUtils {
 
         float zIncrement = 0;
         if (el != 0) {
-            if (zStart > zEnd) {
-                zIncrement = (zStart - zEnd) / el;
+            if (vertex1.z > vertex2.z) {
+                zIncrement = (vertex1.z - vertex2.z) / el;
             } else
-                zIncrement = -(zStart - zEnd) / el;
+                zIncrement = -(vertex1.z - vertex2.z) / el;
         }
         for (int t = 0; t < el; t++) {
             err -= es;
@@ -220,16 +221,16 @@ public class DrawUtils {
                     zBuffer[x][y] = zDepth;
 
                     double interpolation = getInterpolationCoef(new Vertex(x, y, zDepth),
-                        new Vertex(xStart, yStart, zStart),
-                        new Vertex(xEnd, yEnd, zEnd));
+                        vertex1,
+                        vertex2);
 
-                    Texture textile = getPolygonTextiles(texture1, texture2, zStart, zEnd, interpolation);
+                    Texture textile = getPolygonTextiles(texture1, texture2, vertex1.wAd, vertex2.wAd, interpolation);
 
                     var pixelNormal =
                         calcNormal(
                             new Vertex(x, y, zDepth),
-                            new Vertex(xStart, yStart, zStart),
-                            new Vertex(xEnd, yEnd, zEnd),
+                            vertex1,
+                            vertex2,
                             normalP1,
                             normalP2
                         );
@@ -312,12 +313,49 @@ public class DrawUtils {
             //g.drawLine(x, y, x, y);
             if (curY == y) {
                 //return new Vertex(x, y, findDepth());
+
                 if (vertex1.y < vertex2.y) {
+                    double interpolation = getInterpolationCoef(
+                        new Vertex(
+                            x,
+                            curY,
+                            findDepth(
+                                vertex2.z,
+                                curY,
+                                Math.abs(vertex1.y - vertex2.y),
+                                vertex1.z - vertex2.z,
+                                vertex2.y
+                            )
+                        ),
+                        vertex1,
+                        vertex2
+                    );
+
+                    double newWad = 1 / ((1 - interpolation) * 1 / vertex1.wAd + interpolation * 1 / vertex2.wAd);
+                    // double newWad = (1 - interpolation) * vertex1.wAd + interpolation * vertex2.wAd;
                     return new Vertex(x, curY, findDepth(vertex2.z, curY, Math.abs(vertex1.y - vertex2.y),
-                        vertex1.z - vertex2.z, vertex2.y), 1, vertex1.wAd);
+                        vertex1.z - vertex2.z, vertex2.y), 1, (float) newWad);
                 } else {
+                    double interpolation = getInterpolationCoef(
+                        new Vertex(
+                            x,
+                            curY,
+                            findDepth(
+                                vertex1.z,
+                                curY,
+                                Math.abs(vertex1.y - vertex2.y),
+                                vertex2.z - vertex1.z,
+                                vertex1.y
+                            )
+                        ),
+                        vertex1,
+                        vertex2
+                    );
+
+                    double newWad = (1 - interpolation) * vertex1.wAd + interpolation * vertex2.wAd;
+
                     return new Vertex(x, curY, findDepth(vertex1.z, curY, Math.abs(vertex1.y - vertex2.y),
-                        vertex2.z - vertex1.z, vertex1.y), 1, vertex2.wAd);
+                        vertex2.z - vertex1.z, vertex1.y), 1, (float) newWad);
                 }
             }
         }
@@ -352,8 +390,15 @@ public class DrawUtils {
                             interseption, vertexList.get(0), vertexList.get(j)
                         );
 
+                        /*Texture textile = new Texture(
+                            (float) (((1 - interpolation) * textureList.get(0).u) + (interpolation * textureList.get
+                            (j).u)),
+                            (float) (((1 - interpolation) * textureList.get(0).v) + (interpolation * textureList.get
+                            (j).v)),
+                            0
+                        );*/
                         Texture textile = getPolygonTextiles(textureList.get(0), textureList.get(j),
-                            vertexList.get(0).z, vertexList.get(j).z, interpolation);
+                            vertexList.get(0).wAd, vertexList.get(j).wAd, interpolation);
 
                         pointsTextures.add(textile);
                         pointsNormals.add(
@@ -371,8 +416,14 @@ public class DrawUtils {
                         );
 
                         Texture textile = getPolygonTextiles(textureList.get(j), textureList.get(j + 1),
-                            vertexList.get(j).z, vertexList.get(j + 1).z, interpolation);
-
+                            vertexList.get(j).wAd, vertexList.get(j + 1).wAd, interpolation);
+                        /*Texture textile = new Texture(
+                            (float) (((1 - interpolation) * textureList.get(j).u) + (interpolation * textureList.get
+                            (j + 1).u)),
+                            (float) (((1 - interpolation) * textureList.get(j).v) + (interpolation * textureList.get
+                            (j + 1).v)),
+                            0
+                        );*/
                         pointsTextures.add(textile);
 
                         pointsNormals.add(
@@ -391,13 +442,8 @@ public class DrawUtils {
                     pointsTextures.get(0),
                     pointsTextures.get(1),
                     points.get(0),
-                    points.get(1),
-                    Math.round(points.get(0).x),
-                    Math.round(points.get(0).y),
-                    Math.round(points.get(0).z),
-                    Math.round(points.get(1).x),
-                    Math.round(points.get(1).y),
-                    Math.round(points.get(1).z));
+                    points.get(1)
+                );
             }
             if (points.size() > 2) {
                 if (!points.get(0).equals(points.get(1))) {
@@ -408,13 +454,8 @@ public class DrawUtils {
                         pointsTextures.get(0),
                         pointsTextures.get(1),
                         points.get(0),
-                        points.get(1),
-                        Math.round(points.get(0).x),
-                        Math.round(points.get(0).y),
-                        Math.round(points.get(0).z),
-                        Math.round(points.get(1).x),
-                        Math.round(points.get(1).y),
-                        Math.round(points.get(1).z));
+                        points.get(1)
+                    );
                 } else {
                     if (!points.get(0).equals(points.get(2))) {
                         drawHorLine(g,
@@ -424,13 +465,8 @@ public class DrawUtils {
                             pointsTextures.get(0),
                             pointsTextures.get(2),
                             points.get(0),
-                            points.get(2),
-                            Math.round(points.get(0).x),
-                            Math.round(points.get(0).y),
-                            Math.round(points.get(0).z),
-                            Math.round(points.get(2).x),
-                            Math.round(points.get(2).y),
-                            Math.round(points.get(2).z));
+                            points.get(2)
+                        );
                     } else {
                         drawHorLine(g,
                             object,
@@ -439,13 +475,8 @@ public class DrawUtils {
                             pointsTextures.get(0),
                             pointsTextures.get(3),
                             points.get(0),
-                            points.get(3),
-                            Math.round(points.get(0).x),
-                            Math.round(points.get(0).y),
-                            Math.round(points.get(0).z),
-                            Math.round(points.get(3).x),
-                            Math.round(points.get(3).y),
-                            Math.round(points.get(3).z));
+                            points.get(3)
+                        );
                     }
                 }
             }
@@ -455,8 +486,7 @@ public class DrawUtils {
     private float findDepth(float startZ, int y, float deltaY, float deltaZ, float maxY) {
 
         float zIncrement = deltaZ / deltaY;
-        float z = startZ + (maxY - y) * zIncrement;
-        return z;
+        return startZ + (maxY - y) * zIncrement;
     }
 
     private Vertex findShortestVertex(List<Vertex> vertexList) {
@@ -484,32 +514,19 @@ public class DrawUtils {
         Vertex pointFinish
     ) {
 
-        return vectorService.getLength(
-            vectorService.subtract(point, pointStart)
-        ) / vectorService.getLength(
-            vectorService.subtract(pointFinish, pointStart)
-        );
-    }
-
-    private double getInterpolationCoef(
-        Texture point,
-        Texture pointStart,
-        Texture pointFinish
-    ) {
-
-        return vectorService.getLength(
-            vectorService.subtract(point, pointStart)
-        ) / vectorService.getLength(
-            vectorService.subtract(pointFinish, pointStart)
+        return vectorService.getLengthW(
+            vectorService.subtractW(point, pointStart)
+        ) / vectorService.getLengthW(
+            vectorService.subtractW(pointFinish, pointStart)
         );
     }
 
     public Texture getPolygonTextiles(Texture texture1, Texture texture2, float z1, float z2, double interpolation) {
 
-        double z = ((1 - interpolation) / z1 + interpolation / z2);
+        double z = (1 - interpolation) / z1 + interpolation / z2;
         double textureX = ((1 - interpolation) * texture1.u / z1 + interpolation * texture2.u / z2) / z;
         double textureY = ((1 - interpolation) * texture1.v / z1 + interpolation * texture2.v / z2) / z;
-        /*double textureX = ((1 - interpolation) * texture1.u) + (interpolation * texture2.u);
+       /* double textureX = ((1 - interpolation) * texture1.u) + (interpolation * texture2.u);
         double textureY = ((1 - interpolation) * texture1.v) + (interpolation * texture2.v);*/
         return new Texture((float) textureX, (float) textureY, 1);
     }

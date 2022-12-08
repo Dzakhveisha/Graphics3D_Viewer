@@ -30,7 +30,7 @@ public class Vertex {
         this.w = w;
     }
 
-    public Vertex(float x, float y, float z, float w, float w1) {
+    public Vertex(float x, float y, float z, float w, float wAd) {
 
         this.x = x;
         this.y = y;
