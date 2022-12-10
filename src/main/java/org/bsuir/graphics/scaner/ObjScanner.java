@@ -1,9 +1,10 @@
 package org.bsuir.graphics.scaner;
 
+import org.bsuir.graphics.model.Material;
 import org.bsuir.graphics.parser.ObjParser;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.*;
+import java.util.List;
 
 public class ObjScanner {
 
@@ -13,10 +14,13 @@ public class ObjScanner {
     private static final String COMMAND_NORMAL = "vn";
     private static final String COMMAND_TEXTURE = "vt";
     private static final String COMMAND_MATERIAL_REF = "usemtl";
+    private static final String COMMAND_MATERIAL_LIB = "mtllib";
 
     private final ObjParser handler = new ObjParser();
     private final LineScanner command = new LineScanner();
     private final ScanDataReference dataReference = new ScanDataReference();
+    private final MtlScaner mtlScaner = new MtlScaner();
+    private List<Material> materialList;
 
     public ObjParser getParser() {
 
@@ -40,10 +44,31 @@ public class ObjScanner {
                 processFace(command);
             } else if (command.isCommand(COMMAND_TEXTURE)) {
                 processTexture(command);
+            } else if (command.isCommand(COMMAND_MATERIAL_LIB)) {
+                processMaterialLib(command);
             } else if (command.isCommand(COMMAND_MATERIAL_REF)) {
                 processMaterialReference(command);
             }
         }
+    }
+
+    private void processMaterialLib(LineScanner command) {
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream(command.getStringParam(0));
+
+        if (inputStream == null) {
+            throw new RuntimeException("Could not find file in the resources");
+        }
+        final Reader reader = new InputStreamReader(inputStream);
+
+        try {
+            mtlScaner.run(new BufferedReader(reader));
+        } catch (IOException ex) {
+            System.out.println("Scanner exception. Exception:" + ex.getMessage() + " " + ex.getCause());
+        }
+
+        this.materialList = mtlScaner.getParser().getMaterials();
     }
 
     private void processTexture(LineScanner command) {

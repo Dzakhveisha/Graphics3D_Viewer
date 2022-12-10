@@ -80,7 +80,7 @@ public class MainFrame implements Runnable {
     private ObjScanner readFile() {
 
         ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream("model4.obj");
+        InputStream inputStream = classLoader.getResourceAsStream("RecordpLayer_vintage_solo_scene_GOBACK_TO_PREVIOUS_TEST.obj");
         //Ford_Mustang_Shelby_GT500KR.obj
 
         if (inputStream == null) {

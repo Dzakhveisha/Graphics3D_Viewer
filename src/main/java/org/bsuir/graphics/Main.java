@@ -15,7 +15,6 @@ public class Main {
         public void uncaughtException(Thread thread, Throwable thrown) {
 
             System.out.println("lol");
-            // TODO handle your Exception here
         }
     }*/
 }
