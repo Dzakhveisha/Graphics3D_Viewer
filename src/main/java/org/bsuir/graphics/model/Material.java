@@ -1,5 +1,10 @@
 package org.bsuir.graphics.model;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+
 public class Material {
     private String name;
     private float[] Ka;
@@ -9,7 +14,7 @@ public class Material {
     private float illum;
     private float[] Ks;
     private int Ns;
-    private String map_Kd;
+    private BufferedImage map_Kd;
 
     public Material(String mtrLibName) {
         this.name = mtrLibName;
@@ -79,11 +84,20 @@ public class Material {
         Ns = ns;
     }
 
-    public String getMap_Kd() {
+    public BufferedImage getMap_Kd() {
         return map_Kd;
     }
 
     public void setMap_Kd(String map_Kd) {
-        this.map_Kd = map_Kd;
+        ClassLoader classLoader = getClass().getClassLoader();
+        try(InputStream inputStream = classLoader.getResourceAsStream(map_Kd)) {
+            if (inputStream != null) {
+                this.map_Kd = ImageIO.read(inputStream);
+            } else {
+                System.out.println("file: " + map_Kd + " not found");
+            }
+        } catch(IOException ex) {
+            throw new RuntimeException();
+        }
     }
 }

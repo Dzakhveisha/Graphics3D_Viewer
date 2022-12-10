@@ -42,6 +42,7 @@ public class MtlParser {
     }
 
     public void onDiffuseMap(String map) {
+
         findMaterialByCurName().setMap_Kd(map);
     }
 }

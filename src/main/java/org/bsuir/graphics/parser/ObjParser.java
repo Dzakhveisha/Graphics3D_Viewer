@@ -1,11 +1,6 @@
 package org.bsuir.graphics.parser;
 
-import org.bsuir.graphics.model.DataReference;
-import org.bsuir.graphics.model.Face;
-import org.bsuir.graphics.model.Model;
-import org.bsuir.graphics.model.ModelObject;
-import org.bsuir.graphics.model.Texture;
-import org.bsuir.graphics.model.Vertex;
+import org.bsuir.graphics.model.*;
 
 public class ObjParser {
 
@@ -54,9 +49,9 @@ public class ObjParser {
         currentFace.getReferences().add(reference);
     }
 
-    public void onMaterialReference(String reflectMaterialName, String diffuseMaterialName, String normalMaterialName){
+    public void onMaterialReference(Material material){
         assureCurrentObject();
-        currentObject.setMaterialsName(normalMaterialName, diffuseMaterialName, reflectMaterialName);
+        currentObject.setMaterial(material);
     }
 
     private void assureCurrentObject() {

@@ -4,6 +4,7 @@ import org.bsuir.graphics.model.Material;
 import org.bsuir.graphics.parser.ObjParser;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ObjScanner {
@@ -20,7 +21,7 @@ public class ObjScanner {
     private final LineScanner command = new LineScanner();
     private final ScanDataReference dataReference = new ScanDataReference();
     private final MtlScaner mtlScaner = new MtlScaner();
-    private List<Material> materialList;
+    private List<Material> materialList = new ArrayList<>();
 
     public ObjParser getParser() {
 
@@ -119,26 +120,10 @@ public class ObjScanner {
     }
 
     private void processMaterialReference(LineScanner command) {
-
-        String normalMapName = null;
-        String diffuseMapName = null;
-        String reflectMapName = null;
-        if (command.getParameterCount() > 0) {
-            for (int i = 0; i < command.getParameterCount(); i++) {
-                final String name = command.getStringParam(i).trim();
-                if (name.contains("Normal")) {
-                    normalMapName = name;
-                }
-                if (name.contains("Reflect")) {
-                    reflectMapName = name;
-                }
-                if (name.contains("diffuse")) {
-                    diffuseMapName = name;
-                }
-            }
-            handler.onMaterialReference(reflectMapName, diffuseMapName, normalMapName);
-        } else {
-            handler.onMaterialReference(null, null, null);
-        }
+        Material material = materialList.stream()
+                .filter(m -> m.getName().equals(command.getStringParam(0)))
+                .findFirst()
+                .orElseThrow(RuntimeException::new);
+        handler.onMaterialReference(material);
     }
 }

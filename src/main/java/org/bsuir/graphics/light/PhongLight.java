@@ -49,16 +49,17 @@ public class PhongLight {
 
         double[] color = {255, 255, 255};
 
-        if (object.getDiffuseMap() != null) {
-            int ambientColor = getBufferedImageTextile(object.getDiffuseMap(), imageTextile);
-            color[0] *= ((ambientColor & 0x00ff0000) >> 16) / 255.0 * ambientStrength;
-            color[1] *= ((ambientColor & 0x0000ff00) >> 8) / 255.0 * ambientStrength;
-            color[2] *= (ambientColor & 0x000000ff) / 255.0 * ambientStrength;
-        } else {
-            for (int i = 0; i < 3; i++) {
-                color[i] *= ambientStrength;
-            }
+        float[] aColor = object.getMaterial().getKa();
+        if (aColor != null) {
+            color[0] = aColor[0] * 255;
+            color[1] = aColor[1] * 255;
+            color[2] = aColor[2] * 255;
         }
+
+        for (int i = 0; i < 3; i++) {
+            color[i] *= ambientStrength;
+        }
+
         return color;
     }
 
@@ -66,21 +67,17 @@ public class PhongLight {
 
         double[] color = {255, 255, 255};
 
-        double scalar;
-        if (object.getNormalMap() != null) {
-            int normal = getBufferedImageTextile(object.getNormalMap(), imageTextile);
-            Vertex mapNormal = new Vertex(
-                (float) (((normal & 0x00ff0000) >> 16) / 255.0 * 2 - 1),
-                (float) (((normal & 0x0000ff00) >> 8) / 255.0 * 2 - 1),
-                (float) (((normal & 0x000000ff) / 255.0 * 2 - 1))
-            );
-            scalar =
-                Math.max(vectorService.scalarMultiply(vectorService.normalize(mapper.fromModelSpaceToWorldSpace(mapNormal)), theSunVector), 0);
-        } else {
-            scalar = Math.max(vectorService.scalarMultiply(vectorService.normalize(pixelVector), theSunVector), 0);
+        float[] dColor = object.getMaterial().getKd();
+        if (dColor != null) {
+            color[0] = dColor[0] * 255;
+            color[1] = dColor[1] * 255;
+            color[2] = dColor[2] * 255;
         }
-        if (object.getDiffuseMap() != null) {
-            int diffuseColor = getBufferedImageTextile(object.getDiffuseMap(), imageTextile);
+
+        double scalar = Math.max(vectorService.scalarMultiply(vectorService.normalize(pixelVector), theSunVector), 0);
+
+        if (object.getMaterial().getMap_Kd() != null) {
+            int diffuseColor = getBufferedImageTextile(object.getMaterial().getMap_Kd(), imageTextile);
             color[0] *= scalar * ((diffuseColor & 0x00ff0000) >> 16) / 255.0 * diffuseStrength;
             color[1] *= scalar * ((diffuseColor & 0x0000ff00) >> 8) / 255.0 * diffuseStrength;
             color[2] *= scalar * (diffuseColor & 0x000000ff) / 255.0 * diffuseStrength;
@@ -100,33 +97,26 @@ public class PhongLight {
     ) {
 
         double[] color = {255, 255, 255};
-        Vertex eye;
-        if (object.getNormalMap() != null) {
-            int normal = getBufferedImageTextile(object.getNormalMap(), imageTextile);
-            Vertex mapNormal = new Vertex(
-                (float) (((normal & 0x00ff0000) >> 16) / 255.0 * 2 - 1),
-                (float) (((normal & 0x0000ff00) >> 8) / 255.0 * 2 - 1),
-                (float) (((normal & 0x000000ff) / 255.0 * 2 - 1))
-            );
-            eye = vectorService.normalize(vectorService.subtract(ProjectConstants.EYE,
-                mapper.fromModelSpaceToWorldSpace(mapNormal)));
-        } else {
-            eye = vectorService.normalize(vectorService.subtract(ProjectConstants.EYE, pixelPosition));
+
+        float[] sColor = object.getMaterial().getKs();
+        if (sColor != null) {
+            color[0] = sColor[0] * 255;
+            color[1] = sColor[1] * 255;
+            color[2] = sColor[2] * 255;
         }
+
+        Vertex eye = vectorService.normalize(vectorService.subtract(ProjectConstants.EYE, pixelPosition));
 
         Vertex specularDirection = vectorService.normalize(vectorService.add(theSunVector, eye));
         double specular = vectorService.scalarMultiply(vectorService.normalize(pixelVector), specularDirection);
-        double scalar = Math.pow(Math.max(specular, 0), specularShines);
-
-        if (object.getReflectMap() != null) {
-            int specularColor = getBufferedImageTextile(object.getReflectMap(), imageTextile);
-            color[0] *= scalar * ((specularColor & 0x00ff0000) >> 16) / 255.0 * specularStrength;
-            color[1] *= scalar * ((specularColor & 0x0000ff00) >> 8) / 255.0 * specularStrength;
-            color[2] *= scalar * (specularColor & 0x000000ff) / 255.0 * specularStrength;
+        double scalar;
+        if (object.getMaterial().getNs() != 0) {
+            scalar = Math.pow(Math.max(specular, 0), object.getMaterial().getNs());
         } else {
-            for (int i = 0; i < 3; i++) {
-                color[i] = color[i] * scalar * specularStrength;
-            }
+            scalar = Math.pow(Math.max(specular, 0), specularShines);
+        }
+        for (int i = 0; i < 3; i++) {
+            color[i] = color[i] * scalar * specularStrength;
         }
         return color;
     }

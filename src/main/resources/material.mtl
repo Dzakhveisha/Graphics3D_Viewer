@@ -10,7 +10,7 @@ newmtl recordplayer
 	illum 2
 	Ks 0.80000001192092896 0.80000001192092896 0.80000001192092896
 	Ns 25
-	map_Kd E:\Blender Projects\Recordplayer_Vintage_prop\Textures_recordplayer_Vintage\recorplayer_LP_recordplayer_BaseColor.png
+	map_Kd recorplayer_LP_recordplayer_BaseColor.png
 newmtl Material.010
 	Ka 0.05087608844041824 0.05087608844041824 0.05087608844041824
 	Kd 0.80000001192092896 0.80000001192092896 0.80000001192092896
@@ -19,4 +19,4 @@ newmtl Material.010
 	illum 2
 	Ks 0.80000001192092896 0.80000001192092896 0.80000001192092896
 	Ns 25
-	map_Kd E:\Blender Projects\Recordplayer_Vintage_prop\Textures_recordplayer_Vintage\Vinyls\vinyl_lp_Material.010_BaseColor.png
+	map_Kd vinyl_lp_Material.010_BaseColor.png
