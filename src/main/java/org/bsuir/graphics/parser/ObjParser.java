@@ -65,6 +65,16 @@ public class ObjParser {
 
     public void onTextureCoordinate(float u, float v, float w) {
 
+        u = u % 1;
+        if (u < 0) {
+            u += 1;
+        }
+
+        v = v % 1;
+        if (v < 0) {
+            v += 1;
+        }
+        v = 1-v;
         Texture texCoord = new Texture(u, v, w);
 
         model.getTextures().add(texCoord);

@@ -80,7 +80,7 @@ public class MainFrame implements Runnable {
     private ObjScanner readFile() {
 
         ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream("Indoor_Plants_Set_03.obj");
+        InputStream inputStream = classLoader.getResourceAsStream("XenoRaven.obj");
         //Ford_Mustang_Shelby_GT500KR.obj
 
         if (inputStream == null) {
