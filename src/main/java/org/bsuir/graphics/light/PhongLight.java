@@ -115,8 +115,16 @@ public class PhongLight {
         } else {
             scalar = Math.pow(Math.max(specular, 0), specularShines);
         }
-        for (int i = 0; i < 3; i++) {
-            color[i] = color[i] * scalar * specularStrength;
+
+        if (object.getMaterial().getMap_Ks() != null) {
+            int specularColor = getBufferedImageTextile(object.getMaterial().getMap_Kd(), imageTextile);
+            color[0] *= scalar * ((specularColor & 0x00ff0000) >> 16) / 255.0 * specularStrength;
+            color[1] *= scalar * ((specularColor & 0x0000ff00) >> 8) / 255.0 * specularStrength;
+            color[2] *= scalar * (specularColor & 0x000000ff) / 255.0 * specularStrength;
+        } else {
+            for (int i = 0; i < 3; i++) {
+                color[i] = color[i] * scalar * specularStrength;
+            }
         }
         return color;
     }

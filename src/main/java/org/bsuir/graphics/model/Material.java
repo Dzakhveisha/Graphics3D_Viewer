@@ -16,6 +16,8 @@ public class Material {
     private int Ns;
     private BufferedImage map_Kd;
 
+    private BufferedImage map_Ks;
+
     public Material(String mtrLibName) {
         this.name = mtrLibName;
     }
@@ -91,6 +93,25 @@ public class Material {
     public void setMap_Kd(String map_Kd) {
         ClassLoader classLoader = getClass().getClassLoader();
         try(InputStream inputStream = classLoader.getResourceAsStream(map_Kd)) {
+            if (inputStream != null) {
+                this.map_Kd = ImageIO.read(inputStream);
+            } else {
+                System.out.println("file: " + map_Kd + " not found");
+            }
+        } catch(IOException ex) {
+            throw new RuntimeException();
+        }
+    }
+
+    public BufferedImage getMap_Ks() {
+
+        return map_Ks;
+    }
+
+    public void setMap_Ks(String map_Ks) {
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        try(InputStream inputStream = classLoader.getResourceAsStream(map_Ks)) {
             if (inputStream != null) {
                 this.map_Kd = ImageIO.read(inputStream);
             } else {

@@ -13,6 +13,8 @@ public class MtlScaner {
     private static final String COMMAND_NSPECULAR = "Ns";
     private static final String COMMAND_MAP_DIFFUSE = "map_Kd";
 
+    private static final String COMMAND_MAP_SPECULAR = "map_Ks";
+
     private final MtlParser handler = new MtlParser();
     private final LineScanner command = new LineScanner();
 
@@ -40,8 +42,15 @@ public class MtlScaner {
                 processNSpecular(command);
             } else if (command.isCommand(COMMAND_MAP_DIFFUSE)) {
                 processDiffuseMap(command);
+            } else if (command.isCommand(COMMAND_MAP_SPECULAR)) {
+                processSpecularMap(command);
             }
         }
+    }
+
+    private void processSpecularMap(LineScanner command) {
+        String map = command.getStringParam(0);
+        handler.onSpecularMap(map);
     }
 
     private void processDiffuseMap(LineScanner command) {

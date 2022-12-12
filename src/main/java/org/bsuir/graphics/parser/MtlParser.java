@@ -45,4 +45,9 @@ public class MtlParser {
 
         findMaterialByCurName().setMap_Kd(map);
     }
+
+    public void onSpecularMap(String map) {
+
+        findMaterialByCurName().setMap_Ks(map);
+    }
 }
