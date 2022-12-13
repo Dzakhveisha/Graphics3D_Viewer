@@ -74,7 +74,6 @@ public class ObjParser {
         if (v < 0) {
             v += 1;
         }
-        v = 1-v;
         Texture texCoord = new Texture(u, v, w);
 
         model.getTextures().add(texCoord);

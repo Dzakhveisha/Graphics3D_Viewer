@@ -49,15 +49,22 @@ public class PhongLight {
 
         double[] color = {255, 255, 255};
 
-        float[] aColor = object.getMaterial().getKa();
+        /*float[] aColor = object.getMaterial().getKa();
         if (aColor != null) {
             color[0] = aColor[0] * 255;
             color[1] = aColor[1] * 255;
             color[2] = aColor[2] * 255;
-        }
+        }*/
 
-        for (int i = 0; i < 3; i++) {
-            color[i] *= ambientStrength;
+        if (object.getMaterial().getMap_Kd() != null) {
+            int ambientColor = getBufferedImageTextile(object.getMaterial().getMap_Kd(), imageTextile);
+            color[0] *= ((ambientColor & 0x00ff0000) >> 16) / 255.0 * ambientStrength;
+            color[1] *= ((ambientColor & 0x0000ff00) >> 8) / 255.0 * ambientStrength;
+            color[2] *= (ambientColor & 0x000000ff) / 255.0 * ambientStrength;
+        } else {
+            for (int i = 0; i < 3; i++) {
+                color[i] *= ambientStrength;
+            }
         }
 
         return color;
@@ -67,12 +74,12 @@ public class PhongLight {
 
         double[] color = {255, 255, 255};
 
-        float[] dColor = object.getMaterial().getKd();
+       /* float[] dColor = object.getMaterial().getKd();
         if (dColor != null) {
             color[0] = dColor[0] * 255;
             color[1] = dColor[1] * 255;
             color[2] = dColor[2] * 255;
-        }
+        }*/
 
         double scalar = Math.max(vectorService.scalarMultiply(vectorService.normalize(pixelVector), theSunVector), 0);
 
@@ -117,7 +124,7 @@ public class PhongLight {
         }
 
         if (object.getMaterial().getMap_Ks() != null) {
-            int specularColor = getBufferedImageTextile(object.getMaterial().getMap_Kd(), imageTextile);
+            int specularColor = getBufferedImageTextile(object.getMaterial().getMap_Ks(), imageTextile);
             color[0] *= scalar * ((specularColor & 0x00ff0000) >> 16) / 255.0 * specularStrength;
             color[1] *= scalar * ((specularColor & 0x0000ff00) >> 8) / 255.0 * specularStrength;
             color[2] *= scalar * (specularColor & 0x000000ff) / 255.0 * specularStrength;

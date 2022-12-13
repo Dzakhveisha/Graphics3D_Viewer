@@ -9,9 +9,9 @@ newmtl 07-Default
 	Tr 0
 	illum 2
 	Ks 0.89999997615814208 0.89999997615814208 0.89999997615814208
-	Ns 1.9999998807907104
-	map_Kd XenoRaven_Body_D.tga.png
-	map_Ks XenoRaven_Body_S.tga.png
+	Ns 42
+	map_Kd maps/XenoRaven_Body_diffuse_tga.png
+    map_Ks maps/XenoRaven_Body_S_tga.png
 newmtl default
 	Ka 0.58799999952316288 0.58799999952316288 0.58799999952316288
 	Kd 0.58799999952316288 0.58799999952316288 0.58799999952316288
@@ -19,6 +19,6 @@ newmtl default
 	Tr 0
 	illum 2
 	Ks 0.89999997615814208 0.89999997615814208 0.89999997615814208
-	Ns 2
-	map_Kd XenoRaven_Head_D.tga.png
-    map_Ks XenoRaven_Head_S.tga.png
+	Ns 42
+	map_Kd maps/XenoRaven_Head_D_tga.png
+    map_Ks maps/XenoRaven_Head_S_tga.png
